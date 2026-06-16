@@ -1,0 +1,128 @@
+/* Editor.js — match Forge b0 monochrome shell */
+.blueprint-editor .codex-editor {
+  --editor-bg: var(--card);
+  --editor-fg: var(--foreground);
+  --editor-muted: var(--muted-foreground);
+  --editor-border: var(--border);
+  --editor-accent: var(--primary);
+}
+
+.blueprint-editor .codex-editor__redactor {
+  padding-bottom: 48px !important;
+}
+
+.blueprint-editor .ce-block__content,
+.blueprint-editor .ce-toolbar__content {
+  max-width: none;
+}
+
+.blueprint-editor .ce-paragraph {
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: var(--foreground);
+}
+
+.blueprint-editor .ce-header {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+  padding: 0.2em 0;
+}
+
+.blueprint-editor h1.ce-header {
+  font-size: 1.5rem;
+}
+
+.blueprint-editor h2.ce-header {
+  font-size: 1.125rem;
+}
+
+.blueprint-editor h3.ce-header {
+  font-size: 1rem;
+}
+
+.blueprint-editor .cdx-list {
+  font-size: 0.875rem;
+  line-height: 1.625;
+}
+
+.blueprint-editor .cdx-quote {
+  border-left: 3px solid var(--border);
+  padding-left: 1rem;
+}
+
+.blueprint-editor .cdx-quote__text {
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: var(--muted-foreground);
+}
+
+.blueprint-editor .cdx-checklist__item-text {
+  font-size: 0.875rem;
+}
+
+.blueprint-editor .ce-code__textarea {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  background: var(--muted) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md);
+  color: var(--foreground) !important;
+}
+
+.blueprint-editor .cdx-warning {
+  background: color-mix(in oklch, var(--muted) 80%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.blueprint-editor .cdx-warning__title {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.blueprint-editor .cdx-warning__message {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+
+.blueprint-editor .ce-toolbar__plus,
+.blueprint-editor .ce-toolbar__settings-btn {
+  color: var(--muted-foreground);
+  background: var(--background);
+  border: 1px solid var(--border);
+}
+
+.blueprint-editor .ce-toolbar__plus:hover,
+.blueprint-editor .ce-toolbar__settings-btn:hover {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.blueprint-editor .ce-inline-toolbar,
+.blueprint-editor .ce-conversion-toolbar,
+.blueprint-editor .ce-settings,
+.blueprint-editor .ce-popover {
+  background: var(--popover);
+  border: 1px solid var(--border);
+  box-shadow: none;
+  color: var(--popover-foreground);
+}
+
+.blueprint-editor .ce-popover-item:hover {
+  background: var(--muted);
+}
+
+.blueprint-editor .ce-inline-tool:hover {
+  background: var(--muted);
+}
+
+.blueprint-editor .cdx-block.cdx-delimiter {
+  line-height: 1;
+  padding: 0.75rem 0;
+}
+
+.blueprint-editor .cdx-delimiter::before {
+  color: var(--border);
+}

@@ -1,7 +1,8 @@
 import * as React from "react"
+import Link from "next/link"
+import { ArrowDownIcon, ArrowUpIcon, ArrowUpRightIcon } from "lucide-react"
 
-import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
+import { PanelCard } from "@/components/overview/panel-card"
 import { cn } from "@/lib/utils"
 
 type Trend = "up" | "down" | "flat"
@@ -9,17 +10,21 @@ type Trend = "up" | "down" | "flat"
 export function TrendPill({
   trend,
   children,
+  invert = false,
 }: {
   trend: Trend
   children: React.ReactNode
+  invert?: boolean
 }) {
+  const good =
+    invert ? trend === "down" || trend === "flat" : trend === "up" || trend === "flat"
   return (
     <span
       className={cn(
         "inline-flex items-center gap-0.5 text-xs font-medium tabular-nums",
-        trend === "up" && "text-emerald-600 dark:text-emerald-400",
-        trend === "down" && "text-rose-600 dark:text-rose-400",
-        trend === "flat" && "text-muted-foreground"
+        good && "text-emerald-600 dark:text-emerald-400",
+        !good && trend !== "flat" && "text-rose-600 dark:text-rose-400",
+        trend === "flat" && !invert && "text-muted-foreground"
       )}
     >
       {trend === "up" && <ArrowUpIcon className="size-3" />}
@@ -34,32 +39,48 @@ export function MetricCard({
   value,
   change,
   footnote,
+  href,
 }: {
   label: string
   value: string
   change?: { trend: Trend; label: string }
   footnote?: React.ReactNode
+  href?: string
 }) {
-  return (
-    <Card size="sm" className="h-full">
-      <CardHeader>
-        <CardDescription className="text-[11px] font-medium tracking-wide text-muted-foreground/80 uppercase">
-          {label}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-1">
-        <span className="text-[2.25rem] leading-none font-semibold tracking-tight tabular-nums">
-          {value}
-        </span>
-        {change && (
-          <div>
-            <TrendPill trend={change.trend}>{change.label}</TrendPill>
-          </div>
+  const card = (
+    <PanelCard
+      className={cn(
+        "flex h-full flex-col gap-2 p-4",
+        href && "transition-colors group-hover:border-foreground/20 group-hover:bg-muted/30"
+      )}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm text-muted-foreground">{label}</span>
+        {href && (
+          <ArrowUpRightIcon className="size-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-foreground" />
         )}
-        {footnote && (
-          <div className="text-xs text-muted-foreground/80">{footnote}</div>
-        )}
-      </CardContent>
-    </Card>
+      </div>
+      <span className="text-[1.75rem] leading-none font-semibold tracking-tight tabular-nums">
+        {value}
+      </span>
+      {change && (
+        <div>
+          <TrendPill trend={change.trend}>{change.label}</TrendPill>
+        </div>
+      )}
+      {footnote && (
+        <div className="text-xs text-muted-foreground">{footnote}</div>
+      )}
+    </PanelCard>
   )
+
+  if (href) {
+    return (
+      <Link href={href} className="group block h-full">
+        {card}
+      </Link>
+    )
+  }
+
+  return card
 }

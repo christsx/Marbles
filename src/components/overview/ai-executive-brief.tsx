@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { PanelCard } from "@/components/overview/panel-card"
 import { cn } from "@/lib/utils"
 
 function WandIcon({ className }: { className?: string }) {
@@ -23,41 +23,36 @@ function WandIcon({ className }: { className?: string }) {
 }
 
 const insights = [
-  { text: "Revenue up 12% month-over-month, pacing ahead of forecast.", tone: "positive" as const },
-  { text: "Pipeline increased $180k this week, led by the Q3 Enterprise offer.", tone: "positive" as const },
-  { text: "2 reps below baseline and trending down — coaching recommended.", tone: "warning" as const },
-  { text: "14 follow-ups overdue, concentrated in the Hot List queue.", tone: "warning" as const },
-  { text: "3 coaching actions overdue and awaiting manager review.", tone: "warning" as const },
-  { text: "Forecast confidence remains high based on close and show rates.", tone: "positive" as const },
+  { text: "Throughput up 18% week-over-week — 142 work orders shipped.", tone: "positive" as const },
+  { text: "Merge rate held at 92% with cycle time down to 3.4h median.", tone: "positive" as const },
+  { text: "2 agents below baseline (Echo, Sol) — calibration recommended.", tone: "warning" as const },
+  { text: "11 flaky tests blocking the web-app suite from going green.", tone: "warning" as const },
+  { text: "Deploy success at 98%; last release shipped 12 minutes ago.", tone: "positive" as const },
 ]
 
 export function AiExecutiveBrief() {
   return (
-    <Card className="shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between">
+    <PanelCard className="flex flex-col">
+      <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="flex items-center gap-2">
           <WandIcon className="size-5 text-muted-foreground" />
-          <CardTitle className="text-lg">AI Executive Brief</CardTitle>
+          <h2 className="font-heading text-base font-medium">AI factory brief</h2>
         </div>
         <Badge variant="secondary">Updated 8:00 AM</Badge>
-      </CardHeader>
-      <CardContent>
-        <ul className="flex flex-col divide-y divide-border/60">
-          {insights.map((item, i) => (
-            <li key={i} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-              <span
-                className={cn(
-                  "mt-1.5 size-1.5 shrink-0 rounded-full",
-                  item.tone === "warning" ? "bg-amber-500" : "bg-emerald-500"
-                )}
-              />
-              <span className="text-sm leading-relaxed text-foreground">
-                {item.text}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-    </Card>
+      </div>
+      <ul className="flex flex-col divide-y divide-border/60 border-t border-border/60 px-5">
+        {insights.map((item, i) => (
+          <li key={i} className="flex items-start gap-3 py-3 first:pt-4 last:pb-4">
+            <span
+              className={cn(
+                "mt-1.5 size-1.5 shrink-0 rounded-full",
+                item.tone === "warning" ? "bg-amber-500" : "bg-emerald-500"
+              )}
+            />
+            <span className="text-sm leading-relaxed">{item.text}</span>
+          </li>
+        ))}
+      </ul>
+    </PanelCard>
   )
 }

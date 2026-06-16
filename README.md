@@ -1,15 +1,16 @@
-# Rev_OS
+# Forge
 
-An AI-native revenue operations platform that sits **on top of** your CRM — it doesn't replace it. Rev_OS pulls CRM data, scores opportunities, generates execution queues, monitors compliance, tracks coaching, and surfaces what every revenue team member should do next.
+An AI-native software factory — an SDLC platform where a fleet of AI agents takes work from **requirement → blueprint → work order → tests → ship**, with full visibility into throughput, quality, and cost.
 
-> Engineering north star: tell every rep exactly what to do next, and give managers complete visibility into performance, coaching, compliance, and revenue risk.
+> Engineering north star: tell every agent exactly what to build next, and give the team complete visibility into delivery, quality, reliability, and cost.
 
 ## Tech Stack
 
 | Layer | Choice |
 | --- | --- |
 | Framework | Next.js 16 (App Router, React 19, TypeScript) |
-| UI | shadcn/ui, Tailwind CSS v4, Radix UI, Lucide icons |
+| UI | shadcn/ui (preset `b0`, monochrome), Tailwind CSS v4, Radix UI, Lucide icons |
+| Editor | Editor.js (blueprint documents) |
 | Charts | Recharts |
 | Auth | Clerk (organizations + role-based access) |
 | Database | Postgres (Supabase) via Drizzle ORM |
@@ -64,29 +65,29 @@ Open [http://localhost:3000](http://localhost:3000). Unauthenticated users are r
 
 All app pages live under `/dashboard` and share the `DashboardShell` (sidebar, breadcrumbs, org switcher, Novu inbox).
 
-**Executive**
-- `/dashboard` — Overview (KPIs, AI Executive Brief, team snapshot, opportunity health, critical alerts, revenue trend)
-- `/dashboard/revenue-intelligence` — Revenue, cash, and conversion + revenue by offer
-- `/dashboard/forecasting` — Projected revenue, attainment, forecast chart
-- `/dashboard/daily-briefings` — AI-generated daily summary + archive
-- `/dashboard/ai-audits` — Automated pipeline/CRM integrity checks (severity filtered)
+**Factory**
+- `/dashboard` — Overview (hero KPIs, shipping activity graph, repo status, AI factory brief)
+- `/dashboard/requirements` — Scored intake from every source → buildable specs
+- `/dashboard/blueprints` — Architecture/design plans with Editor.js docs → create (`/new`), view/edit (`/[id]`)
+- `/dashboard/work-orders` — The agent execution queue (Now / In Review / Blocked / Queued / Shipped)
 
-**Pipeline & Sales**
-- `/dashboard/hot-lists` — Prioritized execution queue (Today / Overdue / Active / Closed / Lost)
-- `/dashboard/leads-crm` — Lead response speed, CRM compliance, lead sources
-- `/dashboard/billing` — Cash collected vs outstanding, payments
-- `/dashboard/sales-team` — Team roster → individual rep profiles (`/dashboard/reps/[id]`)
+**Build & Ship**
+- `/dashboard/agents` — Agent fleet → individual agent profiles (`/dashboard/agents/[id]`), provision new agents (`/dashboard/agents/new`)
+- `/dashboard/artifacts` — PRs, modules, schemas, tests, migrations, docs → category detail (`/dashboard/artifacts/[slug]`)
+- `/dashboard/tests` — Suite health, coverage gate, failing + flaky tests
+- `/dashboard/deployments` — Releases, rollbacks, and the release train
 
-**Performance**
-- `/dashboard/performance` — Closer cockpit: pace to goal, priority queue, follow-ups
-- `/dashboard/historical-views` — Trends over 30d / 90d / 12m
-- `/dashboard/goal-tracking` — Blood/stretch goals and pacing per rep
-- `/dashboard/offers` — Offer unit economics (margin, CAC, LTV, ROAS, revenue mix)
+**Quality**
+- `/dashboard/code-review` — AI review findings across PRs (severity filtered)
+- `/dashboard/feedback` — User/QA signal that feeds back into requirements
+- `/dashboard/incidents` — Production incidents, MTTR, and postmortems
+- `/dashboard/metrics` — Delivery metrics (DORA) and throughput by repo
 
-**Marketing & Team**
-- `/dashboard/okrs` — Objectives and key results
-- `/dashboard/asset-factory` — Sales assets by category → category detail (`/dashboard/asset-factory/[slug]`)
-- `/dashboard/sop-library` — Searchable SOPs → SOP detail (`/dashboard/sop-library/[slug]`)
+**Operate**
+- `/dashboard/briefings` — AI-generated daily factory summary + archive
+- `/dashboard/cost` — Compute spend, token usage, and cost per work order by model
+- `/dashboard/roadmap` — Objectives and key results
+- `/dashboard/playbooks` — Searchable engineering playbooks → detail (`/dashboard/playbooks/[slug]`)
 
 ## Project Structure
 
@@ -97,15 +98,15 @@ src/
     sign-in/ sign-up/     # Clerk auth screens
     layout.tsx            # Root layout (ClerkProvider, fonts, TooltipProvider)
   components/
+    blueprints/           # Editor.js blueprint editor + document renderer
     dashboard-shell.tsx   # Sidebar + header + breadcrumbs wrapper
-    page-container.tsx     # Shared max-w content container
-    page-header.tsx        # Shared page title/subtitle
-    score-pill.tsx         # Shared priority-score pill
-    progress-bar.tsx       # Shared progress bar
-    overview/              # Overview page sections
-    charts/                # Recharts client components
-    ui/                    # shadcn/ui primitives
-  lib/                    # Mock data + helpers (reps, opportunities, assets, sops)
+    page-container.tsx    # Shared max-w content container
+    page-header.tsx       # Shared page title/subtitle
+    score-pill.tsx        # Shared priority-score pill
+    progress-bar.tsx      # Shared progress bar
+    overview/             # Overview page sections
+    ui/                   # shadcn/ui primitives
+  lib/                    # Mock data + helpers (agents, work-orders, requirements, blueprints, artifacts, playbooks)
   db/                     # Drizzle schema + client
 ```
 
@@ -115,5 +116,4 @@ Tenancy is handled through **Clerk organizations**; the active org drives the si
 
 ## Status
 
-MVP UI build. Pages are populated with representative mock data in `src/lib/*`, ready to be wired to live CRM data (GoHighLevel / Close) and the database. CRM/tool connections will be handled via an onboarding flow (Pipedream Connect).
-
+UI build. Pages are populated with representative mock data in `src/lib/*`, ready to be wired to live source control, CI, and agent runtimes. The design system is generated from the shadcn `b0` preset (monochrome).

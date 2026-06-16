@@ -17,53 +17,53 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LayoutDashboardIcon, TargetIcon, GaugeIcon, MegaphoneIcon, LifeBuoyIcon, SendIcon, TrendingUpIcon } from "lucide-react"
+import { FactoryIcon, BoxesIcon, ShieldCheckIcon, CompassIcon, LifeBuoyIcon, SendIcon } from "lucide-react"
 
 const data = {
   navMain: [
     {
-      title: "Executive",
+      title: "Factory",
       url: "#",
-      icon: <LayoutDashboardIcon />,
+      icon: <FactoryIcon />,
       isActive: true,
       items: [
         { title: "Overview", url: "/dashboard" },
-        { title: "Revenue Intelligence", url: "/dashboard/revenue-intelligence" },
-        { title: "Forecasting", url: "/dashboard/forecasting" },
-        { title: "Daily Briefings", url: "/dashboard/daily-briefings" },
-        { title: "AI Audits", url: "/dashboard/ai-audits" },
+        { title: "Requirements", url: "/dashboard/requirements" },
+        { title: "Blueprints", url: "/dashboard/blueprints" },
+        { title: "Work Orders", url: "/dashboard/work-orders" },
       ],
     },
     {
-      title: "Pipeline & Sales",
+      title: "Build & Ship",
       url: "#",
-      icon: <TargetIcon />,
+      icon: <BoxesIcon />,
       items: [
-        { title: "Hot Lists", url: "/dashboard/hot-lists" },
-        { title: "Leads & CRM", url: "/dashboard/leads-crm" },
-        { title: "Billing & Payments", url: "/dashboard/billing" },
-        { title: "Sales Team", url: "/dashboard/sales-team" },
+        { title: "Agents", url: "/dashboard/agents" },
+        { title: "Artifacts", url: "/dashboard/artifacts" },
+        { title: "Tests", url: "/dashboard/tests" },
+        { title: "Deployments", url: "/dashboard/deployments" },
       ],
     },
     {
-      title: "Performance",
+      title: "Quality",
       url: "#",
-      icon: <GaugeIcon />,
+      icon: <ShieldCheckIcon />,
       items: [
-        { title: "Main Dashboard", url: "/dashboard/performance" },
-        { title: "Historical Views", url: "/dashboard/historical-views" },
-        { title: "Goal Tracking", url: "/dashboard/goal-tracking" },
-        { title: "Offer Financial Models", url: "/dashboard/offers" },
+        { title: "Code Review", url: "/dashboard/code-review" },
+        { title: "Feedback", url: "/dashboard/feedback" },
+        { title: "Incidents", url: "/dashboard/incidents" },
+        { title: "Metrics", url: "/dashboard/metrics" },
       ],
     },
     {
-      title: "Marketing & Team",
+      title: "Operate",
       url: "#",
-      icon: <MegaphoneIcon />,
+      icon: <CompassIcon />,
       items: [
-        { title: "OKRs", url: "/dashboard/okrs" },
-        { title: "Asset Factory", url: "/dashboard/asset-factory" },
-        { title: "SOP Library", url: "/dashboard/sop-library" },
+        { title: "Briefings", url: "/dashboard/briefings" },
+        { title: "Cost & Models", url: "/dashboard/cost" },
+        { title: "Roadmap", url: "/dashboard/roadmap" },
+        { title: "Playbooks", url: "/dashboard/playbooks" },
       ],
     },
   ],
@@ -110,7 +110,7 @@ export function AppSidebar({
                       />
                       <AvatarFallback className="rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                         {orgName?.charAt(0).toUpperCase() ?? (
-                          <TrendingUpIcon className="size-4" />
+                          <FactoryIcon className="size-4" />
                         )}
                       </AvatarFallback>
                     </Avatar>

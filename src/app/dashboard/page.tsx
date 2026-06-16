@@ -1,12 +1,11 @@
 import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
-import { SectionCards } from "@/components/overview/section-cards"
+import { HeroCards } from "@/components/overview/hero-cards"
+import { ShipActivityGraph } from "@/components/overview/ship-activity-graph"
+import { RepoStatusCard } from "@/components/overview/repo-status-card"
 import { AiExecutiveBrief } from "@/components/overview/ai-executive-brief"
-import { TeamSnapshot } from "@/components/overview/team-snapshot"
-import { CriticalAlerts } from "@/components/overview/critical-alerts"
-import { OpportunityHealth } from "@/components/overview/opportunity-health"
-import { RevenueTrend } from "@/components/overview/revenue-trend"
+import { NeedsAttention } from "@/components/overview/needs-attention"
 
 export default function Page() {
   return (
@@ -14,14 +13,17 @@ export default function Page() {
       <PageContainer>
         <PageHeader
           title="Overview"
-          subtitle="Are we on pace, is the team executing, and what needs attention today?"
+          subtitle="Is the factory shipping, is the pipeline healthy, and what needs attention right now?"
         />
-        <SectionCards />
-        <AiExecutiveBrief />
-        <TeamSnapshot />
-        <OpportunityHealth />
-        <CriticalAlerts />
-        <RevenueTrend />
+        <div className="flex flex-col gap-6">
+          <HeroCards />
+          <ShipActivityGraph />
+          <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+            <RepoStatusCard />
+            <NeedsAttention />
+          </div>
+          <AiExecutiveBrief />
+        </div>
       </PageContainer>
     </DashboardShell>
   )
