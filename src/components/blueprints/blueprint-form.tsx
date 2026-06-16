@@ -6,6 +6,7 @@ import { Wand2Icon, TriangleAlertIcon } from "lucide-react"
 import type { OutputData } from "@editorjs/editorjs"
 
 import {
+  generateBlueprintAction,
   saveBlueprint,
   type SaveBlueprintState,
 } from "@/app/dashboard/blueprints/actions"
@@ -16,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { generateAgenticBlueprint, emptyBlueprint } from "@/lib/blueprint-editor"
+import { emptyBlueprint } from "@/lib/blueprint-editor"
 import { blueprintSystems } from "@/lib/blueprints"
 import { cn } from "@/lib/utils"
 
@@ -73,14 +74,29 @@ export function BlueprintForm({
 
   const handleGenerate = async () => {
     if (!title.trim()) {
-      setEditorError("Add a title first so the agent knows what to draft.")
+      setEditorError("Add a title first so Atlas knows what to draft.")
       return
     }
+
     setEditorError(null)
     setGenerating(true)
+
     try {
-      const data = generateAgenticBlueprint({ title: title.trim(), system })
-      await editorRef.current?.render(data)
+      const result = await generateBlueprintAction({
+        title: title.trim(),
+        system,
+      })
+
+      if (result.status === "error") {
+        setEditorError(result.message)
+        return
+      }
+
+      if (result.status !== "success") {
+        return
+      }
+
+      await editorRef.current?.render(result.content)
     } catch {
       setEditorError("Could not generate draft. Try again.")
     } finally {
@@ -94,6 +110,7 @@ export function BlueprintForm({
 
     try {
       const content = await editorRef.current?.save()
+
       if (!content) {
         setEditorError("Editor is still loading.")
         return
@@ -122,7 +139,11 @@ export function BlueprintForm({
       <Card>
         <CardContent className="flex flex-col gap-5">
           <div className="grid gap-5 md:grid-cols-2">
-            <Field label="Title" htmlFor="title" hint="What is this blueprint designing?">
+            <Field
+              label="Title"
+              htmlFor="title"
+              hint="What is this blueprint designing?"
+            >
               <Input
                 id="title"
                 name="title"
@@ -155,9 +176,9 @@ export function BlueprintForm({
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-background px-4 py-3">
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm font-medium">Agentic draft</span>
+              <span className="text-sm font-medium">Atlas draft</span>
               <span className="text-xs text-muted-foreground">
-                Atlas generates a structured doc from your title and system — edit freely.
+                Atlas drafts arc42 docs with Mermaid diagrams from your repo — edit freely.
               </span>
             </div>
             <Button
@@ -178,7 +199,7 @@ export function BlueprintForm({
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-heading text-base font-medium">Document</h2>
           <span className="text-xs text-muted-foreground">
-            Block editor · headers, lists, code, checklists
+            Block editor · headers, lists, diagrams, checklists
           </span>
         </div>
         <BlueprintEditor ref={editorRef} initialData={initialContent} />

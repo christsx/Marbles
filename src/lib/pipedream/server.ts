@@ -295,3 +295,88 @@ export async function getGithubOverviewMetrics(
   )
 }
 
+export async function getGithubRootPaths(
+  externalUserId: string,
+  accountId: string,
+  fullName: string
+): Promise<string[]> {
+  const parts = splitRepoFullName(fullName)
+
+  if (!parts) {
+    return []
+  }
+
+  const [owner, repo] = parts
+  const pd = getClient()
+
+  const response = await pd.proxy.get({
+    url: `https://api.github.com/repos/${owner}/${repo}/contents`,
+    externalUserId,
+    accountId,
+    headers: {
+      Accept: "application/vnd.github+json",
+    },
+  })
+
+  const body = await readProxyJson<unknown>(response)
+
+  if (!Array.isArray(body)) {
+    return []
+  }
+
+  return body
+    .map((entry) =>
+      entry && typeof entry === "object"
+        ? (entry as { name?: string }).name
+        : undefined
+    )
+    .filter((name): name is string => Boolean(name))
+    .slice(0, 40)
+}
+
+export async function getGithubFileText(
+  externalUserId: string,
+  accountId: string,
+  fullName: string,
+  path: string
+): Promise<string | null> {
+  const parts = splitRepoFullName(fullName)
+
+  if (!parts) {
+    return null
+  }
+
+  const [owner, repo] = parts
+  const pd = getClient()
+
+  try {
+    const response = await pd.proxy.get({
+      url: `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+      externalUserId,
+      accountId,
+      headers: {
+        Accept: "application/vnd.github+json",
+      },
+    })
+
+    const body = await readProxyJson<unknown>(response)
+
+    if (!body || typeof body !== "object") {
+      return null
+    }
+
+    const record = body as { content?: string; encoding?: string }
+
+    if (record.encoding !== "base64" || !record.content) {
+      return null
+    }
+
+    return Buffer.from(record.content.replace(/\n/g, ""), "base64").toString(
+      "utf-8"
+    )
+  } catch (error) {
+    console.error(`Failed to load ${path} from ${fullName}:`, error)
+    return null
+  }
+}
+

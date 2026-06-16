@@ -126,3 +126,33 @@
 .blueprint-editor .cdx-delimiter::before {
   color: var(--border);
 }
+
+.blueprint-editor .blueprint-diagram-tool {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.blueprint-editor .blueprint-diagram-tool__preview {
+  overflow-x: auto;
+  min-height: 120px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in oklch, var(--muted) 50%, transparent);
+  padding: 1rem;
+}
+
+.blueprint-editor .blueprint-diagram-tool__preview svg {
+  display: block;
+  margin-inline: auto;
+  max-width: 100%;
+  height: auto;
+}
+
+.blueprint-editor .blueprint-diagram-tool__error {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}

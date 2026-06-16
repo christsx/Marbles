@@ -3,12 +3,58 @@
 import { redirect } from "next/navigation"
 import type { OutputData } from "@editorjs/editorjs"
 
+import { isBlueprintGenerationConfigured } from "@/lib/ai/config"
+import { generateBlueprintWithLlm } from "@/lib/blueprints/generate"
 import { nextBlueprintId } from "@/lib/blueprints"
 
 export type SaveBlueprintState = {
   status: "idle" | "success" | "error"
   message: string
   blueprintId?: string
+}
+
+export type GenerateBlueprintState =
+  | { status: "idle" }
+  | { status: "success"; content: OutputData }
+  | { status: "error"; message: string }
+
+export async function generateBlueprintAction(input: {
+  title: string
+  system: string
+}): Promise<GenerateBlueprintState> {
+  const title = input.title.trim()
+  const system = input.system.trim()
+
+  if (!title) {
+    return { status: "error", message: "Title is required." }
+  }
+
+  if (!system) {
+    return { status: "error", message: "System is required." }
+  }
+
+  if (!isBlueprintGenerationConfigured()) {
+    return {
+      status: "error",
+      message:
+        "Blueprint generation is not configured. Add GROQ_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY to .env.local.",
+    }
+  }
+
+  try {
+    const content = await generateBlueprintWithLlm({ title, system })
+    return { status: "success", content }
+  } catch (error) {
+    console.error("Blueprint generation failed:", error)
+
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Could not generate blueprint draft.",
+    }
+  }
 }
 
 export async function saveBlueprint(

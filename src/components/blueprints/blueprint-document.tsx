@@ -1,5 +1,12 @@
+"use client"
+
 import type { OutputData } from "@editorjs/editorjs"
 
+import { MermaidDiagram } from "@/components/blueprints/mermaid-diagram"
+import {
+  isMermaidSource,
+  stripMermaidFences,
+} from "@/lib/blueprints/editorjs-from-llm"
 import { cn } from "@/lib/utils"
 
 type Block = OutputData["blocks"][number]
@@ -11,7 +18,7 @@ function HeaderBlock({ data }: { data: { text: string; level: number } }) {
       className={cn(
         "font-heading font-semibold tracking-tight",
         data.level === 1 && "text-2xl",
-        data.level === 2 && "text-lg",
+        data.level === 2 && "mt-2 text-lg",
         data.level === 3 && "text-base"
       )}
       dangerouslySetInnerHTML={{ __html: data.text }}
@@ -20,6 +27,10 @@ function HeaderBlock({ data }: { data: { text: string; level: number } }) {
 }
 
 function ParagraphBlock({ data }: { data: { text: string } }) {
+  if (isMermaidSource(data.text)) {
+    return <MermaidDiagram chart={stripMermaidFences(data.text)} />
+  }
+
   return (
     <p
       className="text-sm leading-relaxed text-muted-foreground"
@@ -87,21 +98,43 @@ function QuoteBlock({ data }: { data: { text: string; caption?: string } }) {
         className="text-sm leading-relaxed text-muted-foreground italic"
         dangerouslySetInnerHTML={{ __html: data.text }}
       />
-      {data.caption && (
+      {data.caption ? (
         <footer
           className="mt-1 text-xs text-muted-foreground"
           dangerouslySetInnerHTML={{ __html: data.caption }}
         />
-      )}
+      ) : null}
     </blockquote>
   )
 }
 
 function CodeBlock({ data }: { data: { code: string } }) {
+  if (isMermaidSource(data.code)) {
+    return <MermaidDiagram chart={stripMermaidFences(data.code)} />
+  }
+
   return (
     <pre className="overflow-x-auto rounded-lg border border-border bg-muted/50 p-4 font-mono text-xs leading-relaxed">
       <code>{data.code}</code>
     </pre>
+  )
+}
+
+function DiagramBlock({
+  data,
+}: {
+  data: {
+    title?: string
+    caption?: string
+    chart: string
+  }
+}) {
+  return (
+    <MermaidDiagram
+      title={data.title}
+      caption={data.caption}
+      chart={data.chart}
+    />
   )
 }
 
@@ -146,6 +179,18 @@ function BlockRenderer({ block }: { block: Block }) {
       )
     case "code":
       return <CodeBlock data={block.data as { code: string }} />
+    case "diagram":
+      return (
+        <DiagramBlock
+          data={
+            block.data as {
+              title?: string
+              caption?: string
+              chart: string
+            }
+          }
+        />
+      )
     case "warning":
       return (
         <WarningBlock data={block.data as { title: string; message: string }} />

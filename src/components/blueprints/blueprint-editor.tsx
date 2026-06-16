@@ -12,6 +12,7 @@ import type EditorJS from "@editorjs/editorjs"
 import type { OutputData } from "@editorjs/editorjs"
 
 import "./blueprint-editor.css"
+import { polishBlueprintBlocks } from "@/lib/blueprints/editorjs-from-llm"
 import { cn } from "@/lib/utils"
 
 export type BlueprintEditorHandle = {
@@ -25,6 +26,17 @@ type BlueprintEditorProps = {
   readOnly?: boolean
   className?: string
   minHeight?: number
+}
+
+function polishContent(data?: OutputData): OutputData | undefined {
+  if (!data?.blocks?.length) {
+    return data
+  }
+
+  return {
+    ...data,
+    blocks: polishBlueprintBlocks(data.blocks),
+  }
 }
 
 export const BlueprintEditor = forwardRef<
@@ -48,21 +60,21 @@ export const BlueprintEditor = forwardRef<
         { default: Header },
         { default: List },
         { default: Quote },
-        { default: Code },
         { default: Checklist },
         { default: InlineCode },
         { default: Delimiter },
         { default: Warning },
+        { default: DiagramTool },
       ] = await Promise.all([
         import("@editorjs/editorjs"),
         import("@editorjs/header"),
         import("@editorjs/list"),
         import("@editorjs/quote"),
-        import("@editorjs/code"),
         import("@editorjs/checklist"),
         import("@editorjs/inline-code"),
         import("@editorjs/delimiter"),
         import("@editorjs/warning"),
+        import("@/components/blueprints/blueprint-diagram-tool"),
       ])
 
       if (destroyed || !holderRef.current) return
@@ -70,7 +82,7 @@ export const BlueprintEditor = forwardRef<
       const editor = new Editor({
         holder: holderRef.current,
         readOnly,
-        data: initialData,
+        data: polishContent(initialData),
         placeholder:
           "Write your blueprint — goals, architecture, contracts, rollout plan…",
         minHeight,
@@ -83,7 +95,7 @@ export const BlueprintEditor = forwardRef<
           list: { class: List, inlineToolbar: true },
           checklist: { class: Checklist, inlineToolbar: true },
           quote: { class: Quote, inlineToolbar: true },
-          code: Code,
+          diagram: DiagramTool,
           inlineCode: InlineCode,
           delimiter: Delimiter,
           warning: Warning,
@@ -125,7 +137,13 @@ export const BlueprintEditor = forwardRef<
       if (!editorRef.current) {
         throw new Error("Editor not ready")
       }
-      await editorRef.current.render(data)
+      const polished = polishContent(data)
+
+      if (!polished) {
+        throw new Error("Blueprint content is empty")
+      }
+
+      await editorRef.current.render(polished)
     },
   }))
 
