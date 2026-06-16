@@ -1,14 +1,12 @@
 import Link from "next/link"
-import { ArrowUpRightIcon } from "lucide-react"
 
 import { TrendPill } from "@/components/overview/metric-card"
-import { PanelCard } from "@/components/overview/panel-card"
-import { cn } from "@/lib/utils"
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 
 type HeroCard = {
   label: string
   value: string
-  change?: { trend: "up" | "down"; label: string; invert?: boolean }
+  change?: { trend: "up" | "down"; label: string }
   footnote: string
   href: string
 }
@@ -31,7 +29,7 @@ const cards: HeroCard[] = [
   {
     label: "Cycle time",
     value: "3.4h",
-    change: { trend: "down", label: "-22m", invert: true },
+    change: { trend: "down", label: "-22m" },
     footnote: "median spec → ship",
     href: "/dashboard/metrics",
   },
@@ -39,29 +37,25 @@ const cards: HeroCard[] = [
 
 export function HeroCards() {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div className="grid auto-rows-min gap-4 md:grid-cols-3">
       {cards.map((card) => (
-        <Link key={card.label} href={card.href} className="group block">
-          <PanelCard
-            className={cn(
-              "flex h-full flex-col gap-3 p-5 transition-colors",
-              "group-hover:border-foreground/20 group-hover:bg-muted/30"
-            )}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-sm text-muted-foreground">{card.label}</span>
-              <ArrowUpRightIcon className="size-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-foreground" />
-            </div>
-            <span className="text-[2.25rem] leading-none font-semibold tracking-tight tabular-nums">
-              {card.value}
-            </span>
-            {card.change && (
-              <TrendPill trend={card.change.trend} invert={card.change.invert}>
-                {card.change.label}
-              </TrendPill>
-            )}
-            <span className="text-xs text-muted-foreground">{card.footnote}</span>
-          </PanelCard>
+        <Link key={card.label} href={card.href} className="block h-full">
+          <Card size="sm" className="aspect-video h-full">
+            <CardHeader>
+              <CardDescription className="text-[11px] font-medium tracking-wide text-muted-foreground/80 uppercase">
+                {card.label}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-1">
+              <span className="text-[2.25rem] leading-none font-semibold tracking-tight tabular-nums">
+                {card.value}
+              </span>
+              {card.change && (
+                <TrendPill trend={card.change.trend}>{card.change.label}</TrendPill>
+              )}
+              <span className="text-xs text-muted-foreground/80">{card.footnote}</span>
+            </CardContent>
+          </Card>
         </Link>
       ))}
     </div>

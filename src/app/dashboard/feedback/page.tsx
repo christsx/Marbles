@@ -2,7 +2,8 @@ import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
-import { Badge } from "@/components/ui/badge"
+import { SectionHeading } from "@/components/section-heading"
+import { StatusBadge, type StatusTone } from "@/components/status-badge"
 import { Card } from "@/components/ui/card"
 import {
   Table,
@@ -12,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
 
 type FeedbackType = "Bug" | "Feature" | "Regression" | "Praise"
 type FeedbackStatus = "New" | "Triaged" | "In build" | "Resolved"
@@ -34,33 +34,18 @@ const items: FeedbackItem[] = [
   { title: "Webhook retries fixed our integration", type: "Praise", source: "Customer · Initech", status: "Resolved", linkedWO: "WO-1788" },
 ]
 
-function TypeBadge({ type }: { type: FeedbackType }) {
-  if (type === "Bug" || type === "Regression")
-    return <Badge variant="destructive">{type}</Badge>
-  if (type === "Praise")
-    return (
-      <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-        {type}
-      </Badge>
-    )
-  return <Badge variant="secondary">{type}</Badge>
+const feedbackTypeTone: Record<FeedbackType, StatusTone> = {
+  Bug: "error",
+  Regression: "error",
+  Praise: "success",
+  Feature: "info",
 }
 
-function StatusLabel({ status }: { status: FeedbackStatus }) {
-  return (
-    <span
-      className={cn(
-        "text-sm",
-        status === "Resolved"
-          ? "text-muted-foreground"
-          : status === "New"
-            ? "font-medium text-foreground"
-            : "text-foreground"
-      )}
-    >
-      {status}
-    </span>
-  )
+const feedbackStatusTone: Record<FeedbackStatus, StatusTone> = {
+  New: "warning",
+  Triaged: "info",
+  "In build": "warning",
+  Resolved: "neutral",
 }
 
 export default function FeedbackPage() {
@@ -80,8 +65,8 @@ export default function FeedbackPage() {
         </div>
 
         <section className="flex flex-col gap-3">
-          <h2 className="font-heading text-base font-medium">Recent Feedback</h2>
-          <Card className="py-0">
+          <SectionHeading title="Recent Feedback" />
+          <Card className="py-0 shadow-xs">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -94,16 +79,11 @@ export default function FeedbackPage() {
               </TableHeader>
               <TableBody>
                 {items.map((item, i) => (
-                  <TableRow
-                    key={i}
-                    className={cn(
-                      (item.type === "Bug" || item.type === "Regression") &&
-                        item.status === "New" &&
-                        "bg-rose-500/[0.03]"
-                    )}
-                  >
+                  <TableRow key={i}>
                     <TableCell className="px-4 py-3">
-                      <TypeBadge type={item.type} />
+                      <StatusBadge tone={feedbackTypeTone[item.type]}>
+                        {item.type}
+                      </StatusBadge>
                     </TableCell>
                     <TableCell className="px-4 py-3 font-medium">
                       {item.title}
@@ -115,7 +95,9 @@ export default function FeedbackPage() {
                       {item.linkedWO}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right">
-                      <StatusLabel status={item.status} />
+                      <StatusBadge tone={feedbackStatusTone[item.status]}>
+                        {item.status}
+                      </StatusBadge>
                     </TableCell>
                   </TableRow>
                 ))}

@@ -1,9 +1,8 @@
 import * as React from "react"
 
-import { auth, clerkClient } from "@clerk/nextjs/server"
-
 import { AppSidebar } from "@/components/app-sidebar"
 import { NotificationInbox } from "@/components/notification-inbox"
+import { WorkspaceLabel } from "@/components/workspace-label"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -21,35 +20,17 @@ import {
 
 export type Crumb = { label: string; href?: string }
 
-async function getActiveOrg() {
-  const { orgId } = await auth()
-  if (!orgId) {
-    return null
-  }
-  try {
-    const client = await clerkClient()
-    const org = await client.organizations.getOrganization({
-      organizationId: orgId,
-    })
-    return { name: org.name, imageUrl: org.imageUrl }
-  } catch {
-    return null
-  }
-}
-
-export async function DashboardShell({
+export function DashboardShell({
   breadcrumb = [],
   children,
 }: {
   breadcrumb?: Crumb[]
   children: React.ReactNode
 }) {
-  const initialOrg = await getActiveOrg()
-
   return (
     <SidebarProvider>
-      <AppSidebar initialOrg={initialOrg} />
-      <SidebarInset>
+      <AppSidebar />
+      <SidebarInset className="min-h-0 min-w-0 flex-1">
         <header className="flex h-16 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
@@ -61,7 +42,7 @@ export async function DashboardShell({
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="/dashboard">
-                    {initialOrg?.name ?? "Workspace"}
+                    <WorkspaceLabel />
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 {breadcrumb.map((crumb, index) => {

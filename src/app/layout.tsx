@@ -31,6 +31,8 @@ export default function RootLayout({
         <ClerkProvider
           signInUrl="/sign-in"
           signUpUrl="/sign-up"
+          signInFallbackRedirectUrl="/dashboard"
+          signUpFallbackRedirectUrl="/dashboard"
           afterSignOutUrl="/sign-in"
         >
           <TooltipProvider>{children}</TooltipProvider>

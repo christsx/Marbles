@@ -4,6 +4,8 @@ import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
 import { ProgressBar } from "@/components/progress-bar"
 import { ScorePill } from "@/components/score-pill"
+import { SectionHeading } from "@/components/section-heading"
+import { StatusBadge, type StatusTone } from "@/components/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -14,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
 import {
   requirements,
   sourceCounts,
@@ -23,25 +24,11 @@ import {
 
 const maxSource = Math.max(...sourceCounts.map((s) => s.count))
 
-function StatusBadge({ status }: { status: RequirementStatus }) {
-  if (status === "Shipped") {
-    return (
-      <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-        {status}
-      </Badge>
-    )
-  }
-  if (status === "In build") {
-    return (
-      <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">
-        {status}
-      </Badge>
-    )
-  }
-  if (status === "Triage") {
-    return <Badge variant="destructive">{status}</Badge>
-  }
-  return <Badge variant="secondary">{status}</Badge>
+const requirementStatusTone: Record<RequirementStatus, StatusTone> = {
+  Shipped: "success",
+  "In build": "warning",
+  Triage: "error",
+  Specced: "info",
 }
 
 export default function RequirementsPage() {
@@ -83,8 +70,8 @@ export default function RequirementsPage() {
         </Card>
 
         <section className="flex flex-col gap-3">
-          <h2 className="font-heading text-base font-medium">Recent Requirements</h2>
-          <Card className="py-0">
+          <SectionHeading title="Recent requirements" />
+          <Card className="py-0 shadow-xs">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -98,10 +85,7 @@ export default function RequirementsPage() {
               </TableHeader>
               <TableBody>
                 {requirements.map((req) => (
-                  <TableRow
-                    key={req.id}
-                    className={cn(req.status === "Triage" && "bg-rose-500/[0.03]")}
-                  >
+                  <TableRow key={req.id}>
                     <TableCell className="px-4 py-3">
                       <ScorePill score={req.priority} />
                     </TableCell>
@@ -118,7 +102,9 @@ export default function RequirementsPage() {
                       {req.owner}
                     </TableCell>
                     <TableCell className="px-4 py-3">
-                      <StatusBadge status={req.status} />
+                      <StatusBadge tone={requirementStatusTone[req.status]}>
+                        {req.status}
+                      </StatusBadge>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right text-muted-foreground tabular-nums">
                       {req.created}

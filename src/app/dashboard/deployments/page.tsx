@@ -3,6 +3,8 @@ import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
 import { ProgressBar } from "@/components/progress-bar"
+import { SectionHeading } from "@/components/section-heading"
+import { StatusBadge, type StatusTone } from "@/components/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -13,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
 
 type DeployStatus = "Success" | "Rolled back" | "Deploying"
 
@@ -35,19 +36,10 @@ const deployments: Deployment[] = [
   { version: "v0.9.4", service: "infra", env: "prod", status: "Success", agent: "Echo", time: "Yesterday" },
 ]
 
-function StatusBadge({ status }: { status: DeployStatus }) {
-  if (status === "Rolled back") return <Badge variant="destructive">{status}</Badge>
-  if (status === "Deploying")
-    return (
-      <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">
-        {status}
-      </Badge>
-    )
-  return (
-    <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-      {status}
-    </Badge>
-  )
+const deployStatusTone: Record<DeployStatus, StatusTone> = {
+  "Rolled back": "error",
+  Deploying: "warning",
+  Success: "success",
 }
 
 export default function DeploymentsPage() {
@@ -72,19 +64,17 @@ export default function DeploymentsPage() {
             <span className="text-sm text-muted-foreground">9 of 12 work orders merged</span>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            <ProgressBar value={75} indicatorClassName="bg-emerald-500" />
+            <ProgressBar value={75} />
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Cut planned for Friday</span>
-              <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                On track · 3 in review
-              </span>
+              <StatusBadge tone="success">On track · 3 in review</StatusBadge>
             </div>
           </CardContent>
         </Card>
 
         <section className="flex flex-col gap-3">
-          <h2 className="font-heading text-base font-medium">Recent Deployments</h2>
-          <Card className="py-0">
+          <SectionHeading title="Recent Deployments" />
+          <Card className="py-0 shadow-xs">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -98,10 +88,7 @@ export default function DeploymentsPage() {
               </TableHeader>
               <TableBody>
                 {deployments.map((d, i) => (
-                  <TableRow
-                    key={i}
-                    className={cn(d.status === "Rolled back" && "bg-rose-500/[0.04]")}
-                  >
+                  <TableRow key={i}>
                     <TableCell className="px-4 py-3 font-mono font-medium">
                       {d.version}
                     </TableCell>
@@ -117,7 +104,9 @@ export default function DeploymentsPage() {
                       {d.agent}
                     </TableCell>
                     <TableCell className="px-4 py-3">
-                      <StatusBadge status={d.status} />
+                      <StatusBadge tone={deployStatusTone[d.status]}>
+                        {d.status}
+                      </StatusBadge>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right text-muted-foreground tabular-nums">
                       {d.time}

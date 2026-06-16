@@ -1,6 +1,5 @@
 import Link from "next/link"
 import {
-  ArrowUpRightIcon,
   BoxIcon,
   FileCodeIcon,
   FileTextIcon,
@@ -39,12 +38,8 @@ export default function ArtifactsPage() {
           {artifactCategories.map((cat) => {
             const Icon = icons[cat.slug] ?? FileTextIcon
             return (
-              <Link
-                key={cat.slug}
-                href={`/dashboard/artifacts/${cat.slug}`}
-                className="group"
-              >
-                <Card className="h-full transition-colors group-hover:border-foreground/20 group-hover:bg-muted/40">
+              <Link key={cat.slug} href={`/dashboard/artifacts/${cat.slug}`}>
+                <Card className="h-full">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <span className="flex size-9 items-center justify-center rounded-md bg-muted text-muted-foreground">
@@ -54,10 +49,7 @@ export default function ArtifactsPage() {
                         {cat.count}
                       </Badge>
                     </div>
-                    <CardTitle className="mt-3 flex items-center justify-between text-base">
-                      {cat.title}
-                      <ArrowUpRightIcon className="size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                    </CardTitle>
+                    <CardTitle className="mt-3 text-base">{cat.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-col gap-3">
                     <p className="text-sm text-muted-foreground">

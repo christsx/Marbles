@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
+
 import {
   agents,
   calibrationStats,
@@ -35,7 +35,7 @@ export default function AgentsPage() {
           title="Agents"
           subtitle={`${agents.length} agents · ${belowBaselineCount} below baseline`}
           action={
-            <Button size="lg" asChild>
+            <Button size="sm" asChild>
               <Link href="/dashboard/agents/new">
                 <PlusIcon />
                 Provision agent
@@ -44,7 +44,7 @@ export default function AgentsPage() {
           }
         />
 
-        <Card className="py-0">
+        <Card className="py-0 shadow-xs">
           <Table>
             <TableHeader>
               <TableRow>
@@ -64,26 +64,14 @@ export default function AgentsPage() {
                 const util = utilizationStatus(agent.utilization)
                 const stats = calibrationStats(agent)
                 return (
-                  <TableRow
-                    key={agent.id}
-                    className={cn(
-                      "group/row",
-                      belowBaseline && "bg-rose-500/[0.04]"
-                    )}
-                  >
+                  <TableRow key={agent.id}>
                     <TableCell className="px-4 py-3">
                       <Link
                         href={`/dashboard/agents/${agent.id}`}
                         className="flex items-center gap-3"
                       >
                         <Avatar className="size-8">
-                          <AvatarFallback
-                            className={cn(
-                              "text-xs font-medium",
-                              belowBaseline &&
-                                "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                            )}
-                          >
+                          <AvatarFallback className="text-xs font-medium">
                             {initials(agent.name)}
                           </AvatarFallback>
                         </Avatar>
@@ -91,12 +79,7 @@ export default function AgentsPage() {
                           <span className="font-medium">{agent.name}</span>
                           <span className="text-xs text-muted-foreground">
                             {agent.role} · {agent.model}
-                            {belowBaseline && (
-                              <span className="text-rose-600 dark:text-rose-400">
-                                {" "}
-                                · Below baseline
-                              </span>
-                            )}
+                            {belowBaseline && " · Below baseline"}
                           </span>
                         </div>
                       </Link>
@@ -116,16 +99,8 @@ export default function AgentsPage() {
                         <Badge variant={util.tone}>{util.label}</Badge>
                       </span>
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-right">
-                      <span
-                        className={cn(
-                          "tabular-nums",
-                          belowBaseline &&
-                            "font-medium text-rose-600 dark:text-rose-400"
-                        )}
-                      >
-                        {agent.reliability.toFixed(1)}
-                      </span>
+                    <TableCell className="px-4 py-3 text-right tabular-nums">
+                      {agent.reliability.toFixed(1)}
                       <span className="ml-1.5 text-xs text-muted-foreground">
                         {stats.applyRate}%
                       </span>
@@ -139,7 +114,7 @@ export default function AgentsPage() {
                         aria-label={`Open ${agent.name}`}
                         className="inline-flex"
                       >
-                        <ChevronRightIcon className="size-4 text-muted-foreground transition-transform group-hover/row:translate-x-0.5" />
+                        <ChevronRightIcon className="size-4 text-muted-foreground" />
                       </Link>
                     </TableCell>
                   </TableRow>

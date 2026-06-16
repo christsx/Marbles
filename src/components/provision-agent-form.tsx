@@ -58,7 +58,7 @@ export function ProvisionAgentForm() {
               className={cn(
                 "flex items-start gap-2 rounded-md border p-3 text-sm",
                 state.status === "success"
-                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                  ? "border-border bg-muted/50 text-foreground"
                   : "border-destructive/30 bg-destructive/10 text-destructive"
               )}
             >

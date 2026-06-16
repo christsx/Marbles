@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 
 export const panelClass =
-  "rounded-xl border border-border bg-card text-card-foreground shadow-none ring-0"
+  "rounded-lg border border-border bg-card text-card-foreground shadow-xs"
 
 export function PanelCard({
   className,

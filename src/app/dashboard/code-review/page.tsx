@@ -4,7 +4,7 @@ import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
-import { Badge } from "@/components/ui/badge"
+import { StatusBadge, type StatusTone } from "@/components/status-badge"
 import { Card } from "@/components/ui/card"
 import {
   Table,
@@ -53,32 +53,16 @@ function severityCount(id: string): number {
   return findings.filter((f) => f.severity === id).length
 }
 
-function SeverityBadge({ severity }: { severity: Severity }) {
-  if (severity === "high") return <Badge variant="destructive">High</Badge>
-  if (severity === "medium")
-    return (
-      <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">
-        Medium
-      </Badge>
-    )
-  return <Badge variant="secondary">Low</Badge>
+const severityTone: Record<Severity, StatusTone> = {
+  high: "error",
+  medium: "warning",
+  low: "neutral",
 }
 
-function StatusLabel({ status }: { status: Finding["status"] }) {
-  return (
-    <span
-      className={cn(
-        "text-sm",
-        status === "Resolved"
-          ? "text-muted-foreground"
-          : status === "In progress"
-            ? "text-foreground"
-            : "font-medium text-foreground"
-      )}
-    >
-      {status}
-    </span>
-  )
+const findingStatusTone: Record<Finding["status"], StatusTone> = {
+  Open: "error",
+  "In progress": "warning",
+  Resolved: "neutral",
 }
 
 export default async function CodeReviewPage({
@@ -100,8 +84,7 @@ export default async function CodeReviewPage({
           title="Code Review"
           subtitle="AI review findings across every open and recent pull request."
           action={
-            <span className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="size-1.5 rounded-full bg-emerald-500" />
+            <span className="text-sm text-muted-foreground">
               Last pass 4 min ago · on every PR
             </span>
           }
@@ -142,7 +125,7 @@ export default async function CodeReviewPage({
           })}
         </div>
 
-        <Card className="py-0">
+        <Card className="py-0 shadow-xs">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent">
@@ -155,12 +138,15 @@ export default async function CodeReviewPage({
             </TableHeader>
             <TableBody>
               {visible.map((f, i) => (
-                <TableRow
-                  key={i}
-                  className={cn(f.severity === "high" && "bg-rose-500/[0.04]")}
-                >
+                <TableRow key={i}>
                   <TableCell className="px-4 py-3">
-                    <SeverityBadge severity={f.severity} />
+                    <StatusBadge tone={severityTone[f.severity]}>
+                      {f.severity === "high"
+                        ? "High"
+                        : f.severity === "medium"
+                          ? "Medium"
+                          : "Low"}
+                    </StatusBadge>
                   </TableCell>
                   <TableCell className="px-4 py-3 font-medium">{f.area}</TableCell>
                   <TableCell className="px-4 py-3">
@@ -175,7 +161,9 @@ export default async function CodeReviewPage({
                     {f.recommendation}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-right">
-                    <StatusLabel status={f.status} />
+                    <StatusBadge tone={findingStatusTone[f.status]}>
+                      {f.status}
+                    </StatusBadge>
                   </TableCell>
                 </TableRow>
               ))}

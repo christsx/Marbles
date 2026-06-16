@@ -2,6 +2,8 @@ import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
+import { SectionHeading } from "@/components/section-heading"
+import { StatusBadge, type StatusTone } from "@/components/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import {
@@ -12,7 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
 
 type Severity = "Sev1" | "Sev2" | "Sev3"
 type IncidentStatus = "Investigating" | "Mitigated" | "Resolved"
@@ -35,32 +36,16 @@ const incidents: Incident[] = [
   { id: "INC-195", title: "Auth latency spike after release", severity: "Sev3", service: "core-api", status: "Resolved", duration: "22m", started: "Jun 11 08:55" },
 ]
 
-function SeverityBadge({ severity }: { severity: Severity }) {
-  if (severity === "Sev1") return <Badge variant="destructive">Sev1</Badge>
-  if (severity === "Sev2")
-    return (
-      <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">
-        Sev2
-      </Badge>
-    )
-  return <Badge variant="secondary">Sev3</Badge>
+const severityTone: Record<Severity, StatusTone> = {
+  Sev1: "error",
+  Sev2: "warning",
+  Sev3: "neutral",
 }
 
-function StatusLabel({ status }: { status: IncidentStatus }) {
-  return (
-    <span
-      className={cn(
-        "text-sm",
-        status === "Resolved"
-          ? "text-muted-foreground"
-          : status === "Investigating"
-            ? "font-medium text-rose-600 dark:text-rose-400"
-            : "text-foreground"
-      )}
-    >
-      {status}
-    </span>
-  )
+const incidentStatusTone: Record<IncidentStatus, StatusTone> = {
+  Investigating: "error",
+  Mitigated: "warning",
+  Resolved: "neutral",
 }
 
 export default function IncidentsPage() {
@@ -80,8 +65,8 @@ export default function IncidentsPage() {
         </div>
 
         <section className="flex flex-col gap-3">
-          <h2 className="font-heading text-base font-medium">Recent Incidents</h2>
-          <Card className="py-0">
+          <SectionHeading title="Recent Incidents" />
+          <Card className="py-0 shadow-xs">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -95,12 +80,11 @@ export default function IncidentsPage() {
               </TableHeader>
               <TableBody>
                 {incidents.map((inc) => (
-                  <TableRow
-                    key={inc.id}
-                    className={cn(inc.status === "Investigating" && "bg-rose-500/[0.04]")}
-                  >
+                  <TableRow key={inc.id}>
                     <TableCell className="px-4 py-3">
-                      <SeverityBadge severity={inc.severity} />
+                      <StatusBadge tone={severityTone[inc.severity]}>
+                        {inc.severity}
+                      </StatusBadge>
                     </TableCell>
                     <TableCell className="px-4 py-3">
                       <span className="font-medium">{inc.title}</span>
@@ -118,7 +102,9 @@ export default function IncidentsPage() {
                       {inc.started}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right">
-                      <StatusLabel status={inc.status} />
+                      <StatusBadge tone={incidentStatusTone[inc.status]}>
+                        {inc.status}
+                      </StatusBadge>
                     </TableCell>
                   </TableRow>
                 ))}

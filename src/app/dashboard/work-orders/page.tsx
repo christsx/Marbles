@@ -6,7 +6,7 @@ import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
 import { ScorePill } from "@/components/score-pill"
-import { WorkOrderStatusBadge } from "@/components/overview/work-order-health"
+import { StatusBadge, type StatusTone } from "@/components/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import {
@@ -22,8 +22,18 @@ import {
   WORK_ORDER_VIEWS,
   workOrdersByView,
   viewCounts,
+  type WorkOrderStatus,
   type WorkOrderView,
 } from "@/lib/work-orders"
+
+const workOrderStatusTone: Record<WorkOrderStatus, StatusTone> = {
+  Blocked: "error",
+  Failing: "error",
+  "In review": "info",
+  "In progress": "warning",
+  Queued: "neutral",
+  Shipped: "success",
+}
 
 function resolveView(raw: string | undefined): WorkOrderView {
   const match = WORK_ORDER_VIEWS.find((v) => v.id === raw)
@@ -39,7 +49,6 @@ export default async function WorkOrdersPage({
   const view = resolveView(rawView)
   const counts = viewCounts()
   const orders = workOrdersByView(view)
-  const isBlocked = view === "blocked"
 
   const scored = orders.filter((o) => o.priority > 0)
   const avgScore = scored.length
@@ -102,7 +111,7 @@ export default async function WorkOrdersPage({
           })}
         </div>
 
-        <Card className="overflow-hidden py-0">
+        <Card className="overflow-hidden py-0 shadow-xs">
           {orders.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-1 py-16 text-center">
               <p className="text-sm font-medium">Nothing here</p>
@@ -125,13 +134,7 @@ export default async function WorkOrdersPage({
               </TableHeader>
               <TableBody>
                 {orders.map((wo) => (
-                  <TableRow
-                    key={wo.id}
-                    className={cn(
-                      "transition-colors",
-                      isBlocked && "bg-rose-500/[0.03]"
-                    )}
-                  >
+                  <TableRow key={wo.id}>
                     <TableCell className="pl-4">
                       <StarIcon
                         className={cn(
@@ -165,7 +168,9 @@ export default async function WorkOrdersPage({
                       <Badge variant="outline">{wo.stage}</Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3">
-                      <WorkOrderStatusBadge status={wo.status} />
+                      <StatusBadge tone={workOrderStatusTone[wo.status]}>
+                        {wo.status}
+                      </StatusBadge>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right text-muted-foreground tabular-nums">
                       {wo.updated}

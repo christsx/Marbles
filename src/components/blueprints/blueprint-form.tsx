@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useActionState } from "react"
-import { SparklesIcon, TriangleAlertIcon } from "lucide-react"
+import { Wand2Icon, TriangleAlertIcon } from "lucide-react"
 import type { OutputData } from "@editorjs/editorjs"
 
 import {
@@ -153,7 +153,7 @@ export function BlueprintForm({
             <input type="hidden" name="blueprintId" value={blueprintId} />
           )}
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-background px-4 py-3">
             <div className="flex flex-col gap-0.5">
               <span className="text-sm font-medium">Agentic draft</span>
               <span className="text-xs text-muted-foreground">
@@ -167,7 +167,7 @@ export function BlueprintForm({
               onClick={handleGenerate}
               disabled={generating || isPending}
             >
-              <SparklesIcon className={cn(generating && "animate-pulse")} />
+              <Wand2Icon className={cn(generating && "animate-pulse")} />
               {generating ? "Generating…" : "Generate draft"}
             </Button>
           </div>

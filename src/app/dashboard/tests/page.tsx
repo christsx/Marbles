@@ -5,9 +5,9 @@ import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
 import { ProgressBar } from "@/components/progress-bar"
+import { StatusBadge } from "@/components/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
 
 const failingSuites = [
   { suite: "websocket-reconnect.spec", repo: "web-app", reason: "Timeout after 5s", owner: "Nova" },
@@ -30,8 +30,7 @@ export default function TestsPage() {
           title="Tests"
           subtitle="Suite health, coverage, and what's failing right now."
           action={
-            <span className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="size-1.5 rounded-full bg-emerald-500" />
+            <span className="text-sm text-muted-foreground">
               Last run 4 min ago · on every push
             </span>
           }
@@ -54,14 +53,12 @@ export default function TestsPage() {
             <span className="text-sm text-muted-foreground">87% of 80% gate</span>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
-            <ProgressBar value={87} indicatorClassName="bg-emerald-500" />
+            <ProgressBar value={87} />
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
                 Changed-lines coverage enforced on every PR
               </span>
-              <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                Above gate · +7%
-              </span>
+              <StatusBadge tone="success">Above gate · +7%</StatusBadge>
             </div>
           </CardContent>
         </Card>
@@ -92,7 +89,7 @@ export default function TestsPage() {
                         {s.repo} · {s.reason}
                       </span>
                     </div>
-                    <Badge variant="destructive">{s.owner}</Badge>
+                    <Badge variant="outline">{s.owner}</Badge>
                   </li>
                 ))}
               </ul>
@@ -114,13 +111,7 @@ export default function TestsPage() {
                       <span className="text-sm">{t.test}</span>
                       <span className="text-xs text-muted-foreground">{t.repo}</span>
                     </div>
-                    <span
-                      className={cn(
-                        "text-sm tabular-nums font-medium text-amber-600 dark:text-amber-400"
-                      )}
-                    >
-                      {t.rate}
-                    </span>
+                    <StatusBadge tone="warning">{t.rate}</StatusBadge>
                   </li>
                 ))}
               </ul>

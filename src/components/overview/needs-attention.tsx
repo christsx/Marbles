@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 import { PanelCard } from "@/components/overview/panel-card"
-import { cn } from "@/lib/utils"
+import { StatusBadge, type StatusTone } from "@/components/status-badge"
 
 type Status = "Open" | "In progress" | "In review"
 
@@ -18,21 +18,10 @@ const items: Item[] = [
   { title: "2 agents below baseline need calibration", context: "Echo, Sol · Fleet", status: "In progress" },
 ]
 
-function StatusPill({ status }: { status: Status }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium",
-        status === "Open" && "bg-rose-500/15 text-rose-700 dark:text-rose-400",
-        status === "In progress" &&
-          "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-        status === "In review" &&
-          "bg-violet-500/15 text-violet-700 dark:text-violet-400"
-      )}
-    >
-      {status}
-    </span>
-  )
+const toneMap: Record<Status, StatusTone> = {
+  Open: "error",
+  "In progress": "warning",
+  "In review": "info",
 }
 
 export function NeedsAttention() {
@@ -40,27 +29,27 @@ export function NeedsAttention() {
     <PanelCard className="flex h-full flex-col">
       <div className="flex items-center justify-between gap-3 px-5 py-4">
         <div className="flex flex-col gap-0.5">
-          <h2 className="font-heading text-base font-medium">Needs attention</h2>
+          <h2 className="text-sm font-semibold">Needs attention</h2>
           <p className="text-sm text-muted-foreground">Exceptions across all phases</p>
         </div>
         <Link
           href="/dashboard/code-review"
-          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           View all
         </Link>
       </div>
-      <ul className="flex flex-1 flex-col border-t border-border/60">
+      <ul className="flex flex-1 flex-col border-t border-border">
         {items.map((item, i) => (
           <li
             key={i}
-            className="flex items-center justify-between gap-3 border-b border-border/60 px-5 py-3.5 last:border-b-0"
+            className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5 last:border-b-0"
           >
             <div className="flex flex-col gap-0.5">
               <span className="text-sm font-medium">{item.title}</span>
               <span className="text-xs text-muted-foreground">{item.context}</span>
             </div>
-            <StatusPill status={item.status} />
+            <StatusBadge tone={toneMap[item.status]}>{item.status}</StatusBadge>
           </li>
         ))}
       </ul>

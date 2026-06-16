@@ -42,6 +42,7 @@ const data = {
         { title: "Artifacts", url: "/dashboard/artifacts" },
         { title: "Tests", url: "/dashboard/tests" },
         { title: "Deployments", url: "/dashboard/deployments" },
+        { title: "Integrations", url: "/dashboard/integrations" },
       ],
     },
     {
@@ -81,17 +82,12 @@ const data = {
   ],
 }
 
-export function AppSidebar({
-  initialOrg,
-  ...props
-}: React.ComponentProps<typeof Sidebar> & {
-  initialOrg?: { name: string; imageUrl: string } | null
-}) {
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { organization, isLoaded } = useOrganization()
 
-  const orgName = organization?.name ?? initialOrg?.name
-  const orgImageUrl = organization?.imageUrl ?? initialOrg?.imageUrl
-  const ready = isLoaded || initialOrg != null
+  const orgName = organization?.name
+  const orgImageUrl = organization?.imageUrl
+  const ready = isLoaded
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -99,7 +95,7 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <a href="/dashboard">
                 {ready ? (
                   <>
                     <Avatar className="size-8 rounded-lg after:rounded-lg">

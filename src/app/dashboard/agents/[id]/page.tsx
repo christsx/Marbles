@@ -1,11 +1,12 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeftIcon, CheckIcon } from "lucide-react"
+import { ArrowLeftIcon } from "lucide-react"
 
 import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { MetricCard } from "@/components/overview/metric-card"
 import { ProgressBar } from "@/components/progress-bar"
+import { StatusBadge, type StatusTone } from "@/components/status-badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -45,23 +46,10 @@ function CapabilityRow({ label, value }: { label: string; value: number }) {
   )
 }
 
-function CalibrationStatusBadge({ status }: { status: CalibrationStatus }) {
-  if (status === "applied") {
-    return (
-      <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-        <CheckIcon className="size-3" />
-        Applied
-      </Badge>
-    )
-  }
-  if (status === "in_progress") {
-    return (
-      <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">
-        In progress
-      </Badge>
-    )
-  }
-  return <Badge variant="outline">Queued</Badge>
+const calibrationStatusTone: Record<CalibrationStatus, StatusTone> = {
+  applied: "success",
+  in_progress: "warning",
+  queued: "neutral",
 }
 
 export default async function AgentProfilePage({
@@ -99,13 +87,7 @@ export default async function AgentProfilePage({
 
         <div className="flex items-center gap-4">
           <Avatar className="size-14">
-            <AvatarFallback
-              className={
-                belowBaseline
-                  ? "bg-rose-500/10 text-base font-medium text-rose-600 dark:text-rose-400"
-                  : "text-base font-medium"
-              }
-            >
+            <AvatarFallback className="text-base font-medium">
               {initials(agent.name)}
             </AvatarFallback>
           </Avatar>
@@ -117,10 +99,7 @@ export default async function AgentProfilePage({
               <Badge variant="secondary">{agent.role}</Badge>
               <Badge variant="outline">{agent.model}</Badge>
               {belowBaseline ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-rose-600 dark:text-rose-400">
-                  <span className="size-1.5 rounded-full bg-rose-500" />
-                  Below baseline
-                </span>
+                <StatusBadge tone="error">Below baseline</StatusBadge>
               ) : (
                 <span className="text-xs text-muted-foreground">
                   Active · {agent.lastActiveAt}
@@ -259,7 +238,13 @@ export default async function AgentProfilePage({
                     >
                       {item.title}
                     </span>
-                    <CalibrationStatusBadge status={item.status} />
+                    <StatusBadge tone={calibrationStatusTone[item.status]}>
+                      {item.status === "applied"
+                        ? "Applied"
+                        : item.status === "in_progress"
+                          ? "In progress"
+                          : "Queued"}
+                    </StatusBadge>
                   </li>
                 ))}
               </ul>

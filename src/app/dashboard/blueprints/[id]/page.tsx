@@ -6,6 +6,7 @@ import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { BlueprintDocument } from "@/components/blueprints/blueprint-document"
+import { StatusBadge, type StatusTone } from "@/components/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -15,37 +16,17 @@ export function generateStaticParams() {
   return blueprints.map((bp) => ({ id: bp.id }))
 }
 
-function StatusBadge({ status }: { status: BlueprintStatus }) {
-  if (status === "Implemented") {
-    return (
-      <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-        {status}
-      </Badge>
-    )
-  }
-  if (status === "In review") {
-    return (
-      <Badge className="bg-violet-500/15 text-violet-700 dark:text-violet-400">
-        {status}
-      </Badge>
-    )
-  }
-  if (status === "Approved") {
-    return <Badge variant="secondary">{status}</Badge>
-  }
-  return <Badge variant="outline">{status}</Badge>
+const blueprintStatusTone: Record<BlueprintStatus, StatusTone> = {
+  Implemented: "success",
+  "In review": "info",
+  Approved: "neutral",
+  Draft: "neutral",
 }
 
-function RiskBadge({ risk }: { risk: BlueprintRisk }) {
-  if (risk === "High") return <Badge variant="destructive">High</Badge>
-  if (risk === "Medium") {
-    return (
-      <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">
-        Medium
-      </Badge>
-    )
-  }
-  return <Badge variant="secondary">Low</Badge>
+const riskTone: Record<BlueprintRisk, StatusTone> = {
+  High: "error",
+  Medium: "warning",
+  Low: "neutral",
 }
 
 export default async function BlueprintDetailPage({
@@ -91,8 +72,10 @@ export default async function BlueprintDetailPage({
         />
 
         <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge status={blueprint.status} />
-          <RiskBadge risk={blueprint.risk} />
+          <StatusBadge tone={blueprintStatusTone[blueprint.status]}>
+            {blueprint.status}
+          </StatusBadge>
+          <StatusBadge tone={riskTone[blueprint.risk]}>{blueprint.risk}</StatusBadge>
           <Badge variant="outline">{blueprint.components} components</Badge>
           <span className="text-sm text-muted-foreground">
             {blueprint.author} · Updated {blueprint.updated}

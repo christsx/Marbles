@@ -21,7 +21,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ChevronsUpDownIcon, SparklesIcon, BadgeCheckIcon, CreditCardIcon, LogOutIcon } from "lucide-react"
+import { ChevronsUpDownIcon, CircleArrowUpIcon, BadgeCheckIcon, CreditCardIcon, LogOutIcon } from "lucide-react"
 
 export function NavUser() {
   const { isMobile } = useSidebar()
@@ -80,7 +80,7 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <SparklesIcon />
+                <CircleArrowUpIcon />
                 Upgrade to Pro
               </DropdownMenuItem>
             </DropdownMenuGroup>

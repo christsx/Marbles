@@ -1,46 +1,81 @@
-import Link from "next/link"
-import { ArrowUpRightIcon, GitBranchIcon } from "lucide-react"
+import { GitHubIntegrationPanel } from "@/components/github/github-integration-panel"
+import { GitHubRepoCard } from "@/components/github/github-repo-card"
+import { isPipedreamConfigured } from "@/lib/pipedream/config"
+import { getOverviewRepoContext } from "@/lib/pipedream/overview-context"
+import {
+  getGithubRepoDetails,
+  listConnectedAccounts,
+} from "@/lib/pipedream/server"
+import type {
+  GitHubRepoDetails,
+  PipedreamAccountSummary,
+} from "@/lib/pipedream/types"
+import { getPipedreamExternalUserId } from "@/lib/pipedream/user"
+import { getActiveRepo, getTrackedRepos } from "@/lib/tracked-repos"
 
-import { PanelCard } from "@/components/overview/panel-card"
-import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="text-lg font-semibold tabular-nums">{value}</span>
-    </div>
-  )
+type RepoStatusCardProps = {
+  mode?: "overview" | "integrations"
 }
 
-export function RepoStatusCard() {
+export async function RepoStatusCard({ mode = "overview" }: RepoStatusCardProps) {
+  if (mode === "integrations") {
+    const identity = await getPipedreamExternalUserId()
+
+    if (!identity) {
+      return null
+    }
+
+    const configured = isPipedreamConfigured()
+    let accounts: PipedreamAccountSummary[] = []
+
+    if (configured) {
+      try {
+        accounts = await listConnectedAccounts(identity.externalUserId, "github")
+      } catch (error) {
+        console.error("Failed to load GitHub accounts:", error)
+      }
+    }
+
+    const trackedRepos = await getTrackedRepos(identity.externalUserId)
+    const activeRepo = await getActiveRepo(identity.externalUserId, trackedRepos)
+
+    return (
+      <GitHubIntegrationPanel
+        externalUserId={identity.externalUserId}
+        initialAccounts={accounts}
+        initialTrackedRepos={trackedRepos}
+        initialActiveRepo={activeRepo}
+        pipedreamConfigured={configured}
+      />
+    )
+  }
+
+  const context = await getOverviewRepoContext()
+
+  if (!context) {
+    return null
+  }
+
+  let repoDetails: GitHubRepoDetails | null = null
+
+  if (context.activeRepo && context.account && context.configured) {
+    try {
+      repoDetails = await getGithubRepoDetails(
+        context.externalUserId,
+        context.account.id,
+        context.activeRepo
+      )
+    } catch (error) {
+      console.error(`Failed to load repo details for ${context.activeRepo}:`, error)
+    }
+  }
+
   return (
-    <Link href="/dashboard/deployments" className="group block h-full">
-      <PanelCard
-        className={cn(
-          "flex h-full flex-col gap-5 p-5 transition-colors",
-          "group-hover:border-foreground/20 group-hover:bg-muted/30"
-        )}
-      >
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <GitBranchIcon className="size-4 text-muted-foreground" />
-            <span className="font-medium">main · core-api</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-              Checks passing
-            </Badge>
-            <ArrowUpRightIcon className="size-4 text-muted-foreground/40 transition-colors group-hover:text-foreground" />
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-12">
-          <Stat label="Open work orders" value="41" />
-          <Stat label="Last deploy" value="12 min ago" />
-          <Stat label="Coverage" value="87%" />
-        </div>
-      </PanelCard>
-    </Link>
+    <GitHubRepoCard
+      trackedRepos={context.trackedRepos}
+      activeRepo={context.activeRepo}
+      repoDetails={repoDetails}
+      connected={context.connected}
+    />
   )
 }

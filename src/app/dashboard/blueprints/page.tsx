@@ -5,6 +5,8 @@ import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
+import { SectionHeading } from "@/components/section-heading"
+import { StatusBadge, type StatusTone } from "@/components/status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -16,43 +18,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
 import {
   blueprints,
   type BlueprintRisk,
   type BlueprintStatus,
 } from "@/lib/blueprints"
 
-function StatusBadge({ status }: { status: BlueprintStatus }) {
-  if (status === "Implemented") {
-    return (
-      <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">
-        {status}
-      </Badge>
-    )
-  }
-  if (status === "In review") {
-    return (
-      <Badge className="bg-violet-500/15 text-violet-700 dark:text-violet-400">
-        {status}
-      </Badge>
-    )
-  }
-  if (status === "Approved") {
-    return <Badge variant="secondary">{status}</Badge>
-  }
-  return <Badge variant="outline">{status}</Badge>
+const blueprintStatusTone: Record<BlueprintStatus, StatusTone> = {
+  Implemented: "success",
+  "In review": "info",
+  Approved: "neutral",
+  Draft: "neutral",
 }
 
-function RiskBadge({ risk }: { risk: BlueprintRisk }) {
-  if (risk === "High") return <Badge variant="destructive">High</Badge>
-  if (risk === "Medium")
-    return (
-      <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">
-        Medium
-      </Badge>
-    )
-  return <Badge variant="secondary">Low</Badge>
+const riskTone: Record<BlueprintRisk, StatusTone> = {
+  High: "error",
+  Medium: "warning",
+  Low: "neutral",
 }
 
 export default function BlueprintsPage() {
@@ -80,8 +62,8 @@ export default function BlueprintsPage() {
         </div>
 
         <section className="flex flex-col gap-3">
-          <h2 className="font-heading text-base font-medium">All Blueprints</h2>
-          <Card className="py-0">
+          <SectionHeading title="All blueprints" />
+          <Card className="py-0 shadow-xs">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -96,14 +78,11 @@ export default function BlueprintsPage() {
               </TableHeader>
               <TableBody>
                 {blueprints.map((bp) => (
-                  <TableRow
-                    key={bp.id}
-                    className={cn(bp.risk === "High" && bp.status === "Draft" && "bg-rose-500/[0.03]")}
-                  >
+                  <TableRow key={bp.id}>
                     <TableCell className="px-4 py-3">
                       <Link
                         href={`/dashboard/blueprints/${bp.id}`}
-                        className="font-medium transition-colors hover:text-foreground/80"
+                        className="font-medium text-foreground transition-colors hover:text-foreground/70"
                       >
                         {bp.title}
                       </Link>
@@ -115,10 +94,12 @@ export default function BlueprintsPage() {
                       <Badge variant="outline">{bp.system}</Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3">
-                      <StatusBadge status={bp.status} />
+                      <StatusBadge tone={blueprintStatusTone[bp.status]}>
+                        {bp.status}
+                      </StatusBadge>
                     </TableCell>
                     <TableCell className="px-4 py-3">
-                      <RiskBadge risk={bp.risk} />
+                      <StatusBadge tone={riskTone[bp.risk]}>{bp.risk}</StatusBadge>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-right tabular-nums">
                       {bp.components}

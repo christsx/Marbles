@@ -13,12 +13,7 @@ export function ScorePill({
   return (
     <span
       className={cn(
-        "inline-flex h-7 min-w-9 items-center justify-center rounded-md px-1.5 font-mono text-sm font-semibold tabular-nums",
-        score >= 90 && "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-        score >= 75 &&
-          score < 90 &&
-          "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-        score < 75 && "bg-muted text-muted-foreground",
+        "inline-flex h-7 min-w-9 items-center justify-center rounded-md border border-border bg-background px-1.5 font-mono text-sm font-medium tabular-nums text-foreground shadow-xs",
         className
       )}
     >
