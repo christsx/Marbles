@@ -1,4 +1,4 @@
-# Forge
+# Torse
 
 An AI-native software factory — an SDLC platform where a fleet of AI agents takes work from **requirement → blueprint → work order → tests → ship**, with full visibility into throughput, quality, and cost.
 
