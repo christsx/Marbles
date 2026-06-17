@@ -1,6 +1,5 @@
 import Link from "next/link"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
@@ -24,7 +23,6 @@ const flakyTests = [
 
 export default function TestsPage() {
   return (
-    <DashboardShell breadcrumb={[{ label: "Build & Ship" }, { label: "Tests" }]}>
       <PageContainer>
         <PageHeader
           title="Tests"
@@ -119,6 +117,5 @@ export default function TestsPage() {
           </Card>
         </div>
       </PageContainer>
-    </DashboardShell>
   )
 }

@@ -6,7 +6,6 @@ import {
   TargetIcon,
 } from "lucide-react"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
@@ -48,7 +47,6 @@ const archive = [
 
 export default function BriefingsPage() {
   return (
-    <DashboardShell breadcrumb={[{ label: "Operate" }, { label: "Briefings" }]}>
       <PageContainer>
         <PageHeader
           title="Briefings"
@@ -101,6 +99,5 @@ export default function BriefingsPage() {
           </div>
         </section>
       </PageContainer>
-    </DashboardShell>
   )
 }

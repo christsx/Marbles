@@ -1,0 +1,55 @@
+---
+description: Next.js App Router patterns for fast navigation and production-ready UI
+globs: "src/**/*.{tsx,ts,jsx,js}"
+alwaysApply: true
+---
+
+# Next.js performance & routing
+
+Read `node_modules/next/dist/docs/` before changing routing, data fetching, or layout behavior (this project uses a non-standard Next.js version).
+
+## Client navigation (required)
+
+- Internal links: **`next/link`** with `prefetch`, never raw `<a href="/dashboard/...">`.
+- Shared chrome (sidebar, header): **one `layout.tsx`**, not re-wrapped per page.
+- Add route-level **`loading.tsx`** for perceived speed on slow segments.
+
+## Server vs client
+
+- **Default to Server Components** — no `"use client"` unless the file needs hooks, browser APIs, or event handlers.
+- Push `"use client"` **down the tree** (leaf components), not up to pages/layouts.
+- Heavy client-only libs (charts, editors, mermaid): **`next/dynamic`** with `{ ssr: false }` or load inside a small client leaf.
+
+## Data & rendering
+
+- Avoid `export const dynamic = "force-dynamic"` unless auth or uncacheable data truly requires it.
+- Fetch in the **closest Server Component**; pass serializable props to client children.
+- Prefer **parallel fetches** (`Promise.all`) over sequential awaits in pages.
+
+## File shape = bundle shape
+
+- Large components bloat client JS — enforce the **100-line component limit** (see `component-size-limits` rule).
+- Colocate route config (breadcrumbs, nav metadata) in `src/lib/`, not inside page files.
+- Do not import server-only modules into `"use client"` files.
+
+## Anti-patterns
+
+```tsx
+// ❌ Full reload navigation
+<a href="/dashboard/blueprints">Blueprints</a>
+
+// ✅ Client transition
+<Link href="/dashboard/blueprints" prefetch>Blueprints</Link>
+```
+
+```tsx
+// ❌ Page remounts entire dashboard shell
+export default function Page() {
+  return <DashboardShell><Content /></DashboardShell>
+}
+
+// ✅ Shell in app/dashboard/layout.tsx; page renders content only
+export default function Page() {
+  return <Content />
+}
+```

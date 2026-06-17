@@ -121,6 +121,9 @@ export const BlueprintEditor = forwardRef<
         editorRef.current.destroy()
         editorRef.current = null
       }
+      if (holderRef.current) {
+        holderRef.current.innerHTML = ""
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- init once per mount
   }, [readOnly])

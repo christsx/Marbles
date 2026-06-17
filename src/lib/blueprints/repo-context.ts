@@ -16,6 +16,8 @@ export type BlueprintRepoContext = {
   activeRepo: string | null
   summary: string
   stack?: string
+  /** Dependency names detected in package.json — safe to cite in research answers */
+  verifiedTechnologies?: string[]
 }
 
 function truncate(text: string, max: number) {
@@ -36,10 +38,36 @@ function summarizeReadme(raw: string) {
   return paragraph ? truncate(paragraph, 160) : null
 }
 
+const REPO_CONTEXT_TTL_MS = 60_000
+const repoContextCache = new Map<
+  string,
+  { expiresAt: number; value: BlueprintRepoContext }
+>()
+
 export async function getBlueprintRepoContext(
   compact = false
 ): Promise<BlueprintRepoContext> {
-  const context = await getOverviewRepoContext()
+  const overview = await getOverviewRepoContext()
+  const cacheKey = `${overview?.activeRepo ?? "none"}:${compact ? "compact" : "full"}`
+  const cached = repoContextCache.get(cacheKey)
+
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.value
+  }
+
+  const value = await resolveBlueprintRepoContext(overview, compact)
+  repoContextCache.set(cacheKey, {
+    expiresAt: Date.now() + REPO_CONTEXT_TTL_MS,
+    value,
+  })
+
+  return value
+}
+
+async function resolveBlueprintRepoContext(
+  context: Awaited<ReturnType<typeof getOverviewRepoContext>>,
+  compact: boolean
+): Promise<BlueprintRepoContext> {
 
   if (!context?.activeRepo || !context.account || !context.configured) {
     return {
@@ -74,6 +102,13 @@ export async function getBlueprintRepoContext(
 
     const stack = packageJson ? summarizePackageJson(packageJson) : null
     const stackLine = stack ? formatStackSummary(stack) : null
+    const verifiedTechnologies = stack
+      ? [
+          stack.framework,
+          stack.language,
+          ...stack.dependencies,
+        ].filter((value): value is string => Boolean(value))
+      : undefined
     const readmeLine = readme ? summarizeReadme(readme) : null
 
     const roots = rootPaths.slice(0, compact ? 8 : 12).join(", ")
@@ -99,6 +134,7 @@ export async function getBlueprintRepoContext(
         connected: true,
         activeRepo,
         stack: stackLine ?? undefined,
+        verifiedTechnologies,
         summary: parts.join(" | "),
       }
     }
@@ -119,6 +155,7 @@ export async function getBlueprintRepoContext(
       connected: true,
       activeRepo,
       stack: stackLine ?? undefined,
+      verifiedTechnologies,
       summary: lines.join("\n"),
     }
   } catch (error) {

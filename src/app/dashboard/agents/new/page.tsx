@@ -1,20 +1,12 @@
 import Link from "next/link"
 import { ArrowLeftIcon } from "lucide-react"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { ProvisionAgentForm } from "@/components/provision-agent-form"
 
 export default function NewAgentPage() {
   return (
-    <DashboardShell
-      breadcrumb={[
-        { label: "Build & Ship" },
-        { label: "Agents", href: "/dashboard/agents" },
-        { label: "Provision Agent" },
-      ]}
-    >
       <PageContainer>
         <Link
           href="/dashboard/agents"
@@ -33,6 +25,5 @@ export default function NewAgentPage() {
           <ProvisionAgentForm />
         </div>
       </PageContainer>
-    </DashboardShell>
   )
 }

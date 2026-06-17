@@ -1,6 +1,5 @@
 import Link from "next/link"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
@@ -78,7 +77,6 @@ export default async function CodeReviewPage({
       : findings.filter((f) => f.severity === severity)
 
   return (
-    <DashboardShell breadcrumb={[{ label: "Quality" }, { label: "Code Review" }]}>
       <PageContainer>
         <PageHeader
           title="Code Review"
@@ -171,6 +169,5 @@ export default async function CodeReviewPage({
           </Table>
         </Card>
       </PageContainer>
-    </DashboardShell>
   )
 }

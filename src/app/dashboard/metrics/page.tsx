@@ -1,4 +1,3 @@
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
@@ -34,7 +33,6 @@ const totalShipped = repos.reduce((sum, r) => sum + r.shipped, 0)
 
 export default function MetricsPage() {
   return (
-    <DashboardShell breadcrumb={[{ label: "Quality" }, { label: "Metrics" }]}>
       <PageContainer>
         <PageHeader
           title="Metrics"
@@ -124,6 +122,5 @@ export default function MetricsPage() {
           </Card>
         </section>
       </PageContainer>
-    </DashboardShell>
   )
 }

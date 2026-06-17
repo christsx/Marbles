@@ -1,4 +1,3 @@
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
@@ -33,7 +32,6 @@ const requirementStatusTone: Record<RequirementStatus, StatusTone> = {
 
 export default function RequirementsPage() {
   return (
-    <DashboardShell breadcrumb={[{ label: "Factory" }, { label: "Requirements" }]}>
       <PageContainer>
         <PageHeader
           title="Requirements"
@@ -116,6 +114,5 @@ export default function RequirementsPage() {
           </Card>
         </section>
       </PageContainer>
-    </DashboardShell>
   )
 }

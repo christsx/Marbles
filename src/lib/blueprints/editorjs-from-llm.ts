@@ -1,32 +1,55 @@
 import type { OutputData } from "@editorjs/editorjs"
 
+import { sanitizeLlmText } from "@/lib/ai/sanitize-llm-text"
 import { prepareMermaidSource } from "@/lib/blueprints/mermaid-render"
 
 type BlueprintBlock = OutputData["blocks"][number]
 
 type RawBlock = Record<string, unknown>
 
+function repairBlueprintJson(raw: string) {
+  const listBlockClose = "]" + "}" + "}" + ","
+
+  return raw
+    .replace(/\]\}\}\},/g, listBlockClose)
+    .replace(/\}\}\},(\s*\{)/g, "},$1")
+    .replace(/,\s*,/g, ",")
+}
+
+function parseJsonCandidate(raw: string): unknown {
+  return JSON.parse(raw)
+}
+
 function extractJson(raw: string): unknown {
-  const trimmed = raw.trim().replace(/<\/?think>/gi, "")
+  const trimmed = sanitizeLlmText(raw)
+  const candidates = [
+    trimmed,
+    repairBlueprintJson(trimmed),
+  ]
 
-  try {
-    return JSON.parse(trimmed)
-  } catch {
-    const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)
 
-    if (fenced?.[1]) {
-      return JSON.parse(fenced[1].trim())
-    }
-
-    const start = trimmed.indexOf("{")
-    const end = trimmed.lastIndexOf("}")
-
-    if (start >= 0 && end > start) {
-      return JSON.parse(trimmed.slice(start, end + 1))
-    }
-
-    throw new Error("Model response was not valid JSON.")
+  if (fenced?.[1]) {
+    candidates.push(fenced[1].trim(), repairBlueprintJson(fenced[1].trim()))
   }
+
+  const start = trimmed.indexOf("{")
+  const end = trimmed.lastIndexOf("}")
+
+  if (start >= 0 && end > start) {
+    const slice = trimmed.slice(start, end + 1)
+    candidates.push(slice, repairBlueprintJson(slice))
+  }
+
+  for (const candidate of candidates) {
+    try {
+      return parseJsonCandidate(candidate)
+    } catch {
+      continue
+    }
+  }
+
+  throw new Error("Model response was not valid JSON.")
 }
 
 function asString(value: unknown): string | null {

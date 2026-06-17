@@ -1,8 +1,9 @@
 import Link from "next/link"
+
+import { SetDashboardBreadcrumb } from "@/components/set-dashboard-breadcrumb"
 import { notFound } from "next/navigation"
 import { ArrowLeftIcon } from "lucide-react"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
@@ -34,13 +35,14 @@ export default async function ArtifactCategoryPage({
   }
 
   return (
-    <DashboardShell
-      breadcrumb={[
-        { label: "Build & Ship" },
-        { label: "Artifacts", href: "/dashboard/artifacts" },
-        { label: category.title },
-      ]}
-    >
+    <>
+      <SetDashboardBreadcrumb
+        breadcrumb={[
+          { label: "Build & Ship" },
+          { label: "Artifacts", href: "/dashboard/artifacts" },
+          { label: category.title },
+        ]}
+      />
       <PageContainer>
         <Link
           href="/dashboard/artifacts"
@@ -82,6 +84,6 @@ export default async function ArtifactCategoryPage({
           </Table>
         </Card>
       </PageContainer>
-    </DashboardShell>
+    </>
   )
 }

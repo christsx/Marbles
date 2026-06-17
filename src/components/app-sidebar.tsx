@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 
 import { useOrganization } from "@clerk/nextjs"
 import { NavMain } from "@/components/nav-main"
@@ -82,7 +83,14 @@ const data = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  collapsible = "offcanvas",
+  variant = "inset",
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  collapsible?: "offcanvas" | "icon" | "none"
+  variant?: "sidebar" | "floating" | "inset"
+}) {
   const { organization, isLoaded } = useOrganization()
 
   const orgName = organization?.name
@@ -90,12 +98,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const ready = isLoaded
 
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar variant={variant} collapsible={collapsible} {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/dashboard">
+              <Link href="/dashboard" prefetch>
                 {ready ? (
                   <>
                     <Avatar className="size-8 rounded-lg after:rounded-lg">
@@ -124,7 +132,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </div>
                   </>
                 )}
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

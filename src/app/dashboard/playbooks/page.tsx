@@ -1,11 +1,9 @@
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { PlaybookLibrary } from "@/components/playbook-library"
 
 export default function PlaybooksPage() {
   return (
-    <DashboardShell breadcrumb={[{ label: "Operate" }, { label: "Playbooks" }]}>
       <PageContainer>
         <PageHeader
           title="Playbooks"
@@ -13,6 +11,5 @@ export default function PlaybooksPage() {
         />
         <PlaybookLibrary />
       </PageContainer>
-    </DashboardShell>
   )
 }

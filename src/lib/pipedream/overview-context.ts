@@ -1,10 +1,26 @@
 import { cache } from "react"
+import { unstable_cache } from "next/cache"
 
 import { isPipedreamConfigured } from "@/lib/pipedream/config"
 import { listConnectedAccounts } from "@/lib/pipedream/server"
 import type { PipedreamAccountSummary } from "@/lib/pipedream/types"
 import { getPipedreamExternalUserId } from "@/lib/pipedream/user"
 import { getActiveRepo, getTrackedRepos } from "@/lib/tracked-repos"
+
+const CONNECTED_ACCOUNTS_CACHE_SECONDS = 60
+
+const getCachedConnectedAccounts = unstable_cache(
+  async (externalUserId: string): Promise<PipedreamAccountSummary[]> => {
+    try {
+      return await listConnectedAccounts(externalUserId, "github")
+    } catch (error) {
+      console.error("Failed to load GitHub accounts:", error)
+      return []
+    }
+  },
+  ["github-connected-accounts"],
+  { revalidate: CONNECTED_ACCOUNTS_CACHE_SECONDS }
+)
 
 export type OverviewRepoContext = {
   externalUserId: string
@@ -27,11 +43,7 @@ export const getOverviewRepoContext = cache(
     let accounts: PipedreamAccountSummary[] = []
 
     if (configured) {
-      try {
-        accounts = await listConnectedAccounts(identity.externalUserId, "github")
-      } catch (error) {
-        console.error("Failed to load GitHub accounts:", error)
-      }
+      accounts = await getCachedConnectedAccounts(identity.externalUserId)
     }
 
     const trackedRepos = await getTrackedRepos(identity.externalUserId)

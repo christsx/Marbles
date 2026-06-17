@@ -1,4 +1,3 @@
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
@@ -50,7 +49,6 @@ const feedbackStatusTone: Record<FeedbackStatus, StatusTone> = {
 
 export default function FeedbackPage() {
   return (
-    <DashboardShell breadcrumb={[{ label: "Quality" }, { label: "Feedback" }]}>
       <PageContainer>
         <PageHeader
           title="Feedback"
@@ -106,6 +104,5 @@ export default function FeedbackPage() {
           </Card>
         </section>
       </PageContainer>
-    </DashboardShell>
   )
 }

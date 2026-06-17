@@ -1,8 +1,9 @@
 import Link from "next/link"
+
+import { SetDashboardBreadcrumb } from "@/components/set-dashboard-breadcrumb"
 import { notFound } from "next/navigation"
 import { ArrowLeftIcon, PencilIcon } from "lucide-react"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { BlueprintDocument } from "@/components/blueprints/blueprint-document"
@@ -42,13 +43,14 @@ export default async function BlueprintDetailPage({
   }
 
   return (
-    <DashboardShell
-      breadcrumb={[
-        { label: "Factory" },
-        { label: "Blueprints", href: "/dashboard/blueprints" },
-        { label: blueprint.id },
-      ]}
-    >
+    <>
+      <SetDashboardBreadcrumb
+        breadcrumb={[
+          { label: "Factory" },
+          { label: "Blueprints", href: "/dashboard/blueprints" },
+          { label: blueprint.id },
+        ]}
+      />
       <PageContainer>
         <Link
           href="/dashboard/blueprints"
@@ -88,6 +90,6 @@ export default async function BlueprintDetailPage({
           </CardContent>
         </Card>
       </PageContainer>
-    </DashboardShell>
+    </>
   )
 }

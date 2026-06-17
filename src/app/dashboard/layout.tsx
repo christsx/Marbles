@@ -1,6 +1,5 @@
 import { AuthDataSync } from "@/components/auth-data-sync"
-
-export const dynamic = "force-dynamic"
+import { DashboardShellLayout } from "@/components/dashboard-shell-layout"
 
 export default function DashboardLayout({
   children,
@@ -10,7 +9,7 @@ export default function DashboardLayout({
   return (
     <>
       <AuthDataSync />
-      {children}
+      <DashboardShellLayout>{children}</DashboardShellLayout>
     </>
   )
 }

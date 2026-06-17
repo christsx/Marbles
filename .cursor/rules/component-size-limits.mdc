@@ -1,0 +1,45 @@
+---
+description: Keep React/Tailwind components under 100 lines; split cleanly when they grow
+globs: "**/*.{tsx,jsx}"
+alwaysApply: false
+---
+
+# Component size limits
+
+## Hard limit
+
+- **UI component files** (`*.tsx` / `*.jsx`) must stay **≤ 100 lines** (count includes imports and exports).
+- **`page.tsx` / `layout.tsx`** must stay **≤ 40 lines** — orchestration only; render imported components.
+
+If a file exceeds the limit, **stop adding to it** and split before continuing.
+
+## How to split (no bunching, no over-chunking)
+
+**Bunching (avoid):** multiple components, hooks, fetch logic, types, and large constant maps in one file.
+
+**Over-chunking (avoid):** splitting a < 80-line component into many 10-line files with no clear boundary.
+
+| Extract when… | Into… |
+|---|---|
+| Reusable UI block (header, toolbar, row, panel) | `./component-name-part.tsx` in the same folder |
+| State, effects, handlers | `./use-component-name.ts` |
+| Types / props interfaces | `./component-name.types.ts` |
+| Static options, nav items, maps | `./component-name.config.ts` |
+| Non-trivial Tailwind/CSS (> ~25 lines) | Colocated `./component-name.css` |
+
+Folder example:
+
+```
+blueprints/
+  blueprint-composer.tsx        # ≤ 100 lines, composes subparts
+  blueprint-composer.css
+  use-composer-textarea.ts
+  blueprint-attach-menu.tsx
+```
+
+## Review checklist before finishing a UI change
+
+- [ ] No file over 100 lines (pages over 40)
+- [ ] One primary exported component per file
+- [ ] No inline subcomponents nested more than one level deep — extract instead
+- [ ] Shared logic in hooks/utils, not duplicated across components

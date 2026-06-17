@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { ChevronRightIcon, PlusIcon } from "lucide-react"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -29,7 +28,6 @@ export default function AgentsPage() {
   const belowBaselineCount = agents.filter(isBelowBaseline).length
 
   return (
-    <DashboardShell breadcrumb={[{ label: "Build & Ship" }, { label: "Agents" }]}>
       <PageContainer>
         <PageHeader
           title="Agents"
@@ -124,6 +122,5 @@ export default function AgentsPage() {
           </Table>
         </Card>
       </PageContainer>
-    </DashboardShell>
   )
 }

@@ -1,4 +1,3 @@
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
@@ -37,7 +36,6 @@ function money(value: number) {
 
 export default function CostPage() {
   return (
-    <DashboardShell breadcrumb={[{ label: "Operate" }, { label: "Cost & Models" }]}>
       <PageContainer>
         <PageHeader
           title="Cost & Models"
@@ -126,6 +124,5 @@ export default function CostPage() {
           </Card>
         </section>
       </PageContainer>
-    </DashboardShell>
   )
 }

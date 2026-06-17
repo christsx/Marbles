@@ -4,7 +4,9 @@ import { redirect } from "next/navigation"
 import type { OutputData } from "@editorjs/editorjs"
 
 import { isBlueprintGenerationConfigured } from "@/lib/ai/config"
+import { answerBlueprintQuestion } from "@/lib/blueprints/answer"
 import { generateBlueprintWithLlm } from "@/lib/blueprints/generate"
+import type { BlueprintDeliverableKind } from "@/lib/blueprints/intent"
 import { nextBlueprintId } from "@/lib/blueprints"
 
 export type SaveBlueprintState = {
@@ -18,12 +20,19 @@ export type GenerateBlueprintState =
   | { status: "success"; content: OutputData }
   | { status: "error"; message: string }
 
+export type AnswerBlueprintQuestionState =
+  | { status: "idle" }
+  | { status: "success"; answer: string }
+  | { status: "error"; message: string }
+
 export async function generateBlueprintAction(input: {
   title: string
   system: string
+  prompt?: string
 }): Promise<GenerateBlueprintState> {
   const title = input.title.trim()
   const system = input.system.trim()
+  const prompt = input.prompt?.trim()
 
   if (!title) {
     return { status: "error", message: "Title is required." }
@@ -42,7 +51,7 @@ export async function generateBlueprintAction(input: {
   }
 
   try {
-    const content = await generateBlueprintWithLlm({ title, system })
+    const content = await generateBlueprintWithLlm({ title, system, prompt })
     return { status: "success", content }
   } catch (error) {
     console.error("Blueprint generation failed:", error)
@@ -53,6 +62,61 @@ export async function generateBlueprintAction(input: {
         error instanceof Error
           ? error.message
           : "Could not generate blueprint draft.",
+    }
+  }
+}
+
+export async function answerBlueprintQuestionAction(input: {
+  question: string
+  system: string
+  title?: string
+  hasDocument: boolean
+  deliverable?: BlueprintDeliverableKind
+  corrections?: string[]
+  includeRepoContext?: boolean
+  attachmentContext?: string | null
+}): Promise<AnswerBlueprintQuestionState> {
+  const question = input.question.trim()
+  const system = input.system.trim()
+
+  if (!question) {
+    return { status: "error", message: "Question is required." }
+  }
+
+  if (!system) {
+    return { status: "error", message: "System is required." }
+  }
+
+  if (!isBlueprintGenerationConfigured()) {
+    return {
+      status: "error",
+      message:
+        "Blueprint assistant is not configured. Add GROQ_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY to .env.local.",
+    }
+  }
+
+  try {
+    const answer = await answerBlueprintQuestion({
+      question,
+      system,
+      title: input.title?.trim(),
+      hasDocument: input.hasDocument,
+      deliverable: input.deliverable,
+      corrections: input.corrections,
+      includeRepoContext: input.includeRepoContext,
+      attachmentContext: input.attachmentContext,
+    })
+
+    return { status: "success", answer }
+  } catch (error) {
+    console.error("Blueprint research failed:", error)
+
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Could not research that question.",
     }
   }
 }

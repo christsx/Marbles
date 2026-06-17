@@ -1,4 +1,3 @@
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
@@ -50,7 +49,6 @@ const incidentStatusTone: Record<IncidentStatus, StatusTone> = {
 
 export default function IncidentsPage() {
   return (
-    <DashboardShell breadcrumb={[{ label: "Quality" }, { label: "Incidents" }]}>
       <PageContainer>
         <PageHeader
           title="Incidents"
@@ -113,6 +111,5 @@ export default function IncidentsPage() {
           </Card>
         </section>
       </PageContainer>
-    </DashboardShell>
   )
 }

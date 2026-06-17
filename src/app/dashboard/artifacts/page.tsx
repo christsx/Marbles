@@ -9,7 +9,6 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
@@ -27,7 +26,6 @@ const icons: Record<string, LucideIcon> = {
 
 export default function ArtifactsPage() {
   return (
-    <DashboardShell breadcrumb={[{ label: "Build & Ship" }, { label: "Artifacts" }]}>
       <PageContainer>
         <PageHeader
           title="Artifacts"
@@ -65,6 +63,5 @@ export default function ArtifactsPage() {
           })}
         </div>
       </PageContainer>
-    </DashboardShell>
   )
 }

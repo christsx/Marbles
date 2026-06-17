@@ -5,24 +5,28 @@ import {
   getGroqModel,
   getOpenAiModel,
 } from "@/lib/ai/config"
+import { getGroqModelOptions } from "@/lib/ai/groq-chat-options"
+import { sanitizeLlmText } from "@/lib/ai/sanitize-llm-text"
 
 type GenerateTextOptions = {
   system: string
   prompt: string
   maxTokens?: number
+  format?: "json" | "text"
 }
 
 export async function generateText({
   system,
   prompt,
   maxTokens,
+  format = "json",
 }: GenerateTextOptions): Promise<string> {
   const provider = getBlueprintModelProvider()
   const resolvedMaxTokens =
     maxTokens ?? (provider === "groq" ? 2048 : 8192)
 
   if (provider === "groq") {
-    return generateWithGroq({ system, prompt, maxTokens: resolvedMaxTokens })
+    return generateWithGroq({ system, prompt, maxTokens: resolvedMaxTokens, format })
   }
 
   if (provider === "anthropic") {
@@ -42,6 +46,7 @@ async function generateWithGroq({
   system,
   prompt,
   maxTokens,
+  format = "json",
 }: GenerateTextOptions) {
   const apiKey = getGroqApiKey()
 
@@ -59,19 +64,28 @@ async function generateWithGroq({
       model: getGroqModel(),
       max_tokens: maxTokens,
       temperature: 0.4,
+      ...getGroqModelOptions(),
       messages: [
         {
           role: "system",
-          content: `${system}\n\nJSON only. No fences. /no_think`,
+          content:
+            format === "json"
+              ? `${system}\n\nJSON only. No fences. /no_think`
+              : `${system}\n\nPlain text only. No JSON. /no_think`,
         },
         { role: "user", content: prompt },
       ],
-      response_format: { type: "json_object" },
     }),
   })
 
   if (!response.ok) {
     const body = await response.text()
+    const salvaged = extractGroqFailedGeneration(body)
+
+    if (salvaged) {
+      return sanitizeLlmText(salvaged)
+    }
+
     throw new Error(`Groq request failed (${response.status}): ${body}`)
   }
 
@@ -85,7 +99,22 @@ async function generateWithGroq({
     throw new Error("Groq returned an empty response.")
   }
 
-  return text
+  return sanitizeLlmText(text)
+}
+
+function extractGroqFailedGeneration(body: string): string | null {
+  try {
+    const payload = JSON.parse(body) as {
+      error?: { failed_generation?: string }
+    }
+    const failed = payload.error?.failed_generation
+
+    return typeof failed === "string" && failed.trim().length > 0
+      ? failed
+      : null
+  } catch {
+    return null
+  }
 }
 
 async function generateWithAnthropic({
@@ -133,7 +162,7 @@ async function generateWithAnthropic({
     throw new Error("Anthropic returned an empty response.")
   }
 
-  return text
+  return sanitizeLlmText(text)
 }
 
 async function generateWithOpenAi({
@@ -179,5 +208,5 @@ async function generateWithOpenAi({
     throw new Error("OpenAI returned an empty response.")
   }
 
-  return text
+  return sanitizeLlmText(text)
 }

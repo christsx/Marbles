@@ -1,8 +1,9 @@
 import Link from "next/link"
+
+import { SetDashboardBreadcrumb } from "@/components/set-dashboard-breadcrumb"
 import { notFound } from "next/navigation"
 import { ArrowLeftIcon } from "lucide-react"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { MetricCard } from "@/components/overview/metric-card"
 import { ProgressBar } from "@/components/progress-bar"
@@ -70,12 +71,13 @@ export default async function AgentProfilePage({
   const capability = overallCapability(agent)
 
   return (
-    <DashboardShell
-      breadcrumb={[
-        { label: "Agents", href: "/dashboard/agents" },
-        { label: agent.name },
-      ]}
-    >
+    <>
+      <SetDashboardBreadcrumb
+        breadcrumb={[
+          { label: "Agents", href: "/dashboard/agents" },
+          { label: agent.name },
+        ]}
+      />
       <PageContainer>
         <Link
           href="/dashboard/agents"
@@ -289,6 +291,6 @@ export default async function AgentProfilePage({
           </Card>
         </div>
       </PageContainer>
-    </DashboardShell>
+    </>
   )
 }

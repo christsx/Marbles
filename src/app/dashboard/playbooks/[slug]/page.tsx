@@ -1,8 +1,9 @@
 import Link from "next/link"
+
+import { SetDashboardBreadcrumb } from "@/components/set-dashboard-breadcrumb"
 import { notFound } from "next/navigation"
 import { ArrowLeftIcon } from "lucide-react"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
@@ -26,13 +27,14 @@ export default async function PlaybookDetailPage({
   }
 
   return (
-    <DashboardShell
-      breadcrumb={[
-        { label: "Operate" },
-        { label: "Playbooks", href: "/dashboard/playbooks" },
-        { label: playbook.title },
-      ]}
-    >
+    <>
+      <SetDashboardBreadcrumb
+        breadcrumb={[
+          { label: "Operate" },
+          { label: "Playbooks", href: "/dashboard/playbooks" },
+          { label: playbook.title },
+        ]}
+      />
       <PageContainer>
         <Link
           href="/dashboard/playbooks"
@@ -69,6 +71,6 @@ export default async function PlaybookDetailPage({
           </CardContent>
         </Card>
       </PageContainer>
-    </DashboardShell>
+    </>
   )
 }

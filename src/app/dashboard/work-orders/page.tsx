@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { StarIcon } from "lucide-react"
 
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { MetricCard } from "@/components/overview/metric-card"
@@ -57,7 +56,6 @@ export default async function WorkOrdersPage({
   const starred = orders.filter((o) => o.starred).length
 
   return (
-    <DashboardShell breadcrumb={[{ label: "Factory" }, { label: "Work Orders" }]}>
       <PageContainer>
         <PageHeader
           title="Work Orders"
@@ -182,6 +180,5 @@ export default async function WorkOrdersPage({
           )}
         </Card>
       </PageContainer>
-    </DashboardShell>
   )
 }

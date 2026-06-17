@@ -117,6 +117,8 @@ export function nextBlueprintId(): string {
   return `BP-${next}`
 }
 
+export const BLUEPRINT_GENERAL_SYSTEM = "general"
+
 export const blueprintSystems = [
   "core-api",
   "platform",
@@ -124,3 +126,52 @@ export const blueprintSystems = [
   "billing-svc",
   "infra",
 ] as const
+
+export type BlueprintSystem = (typeof blueprintSystems)[number]
+
+export const blueprintSystemOptions: {
+  id: BlueprintSystem
+  label: string
+  description: string
+}[] = [
+  {
+    id: "core-api",
+    label: "Core API",
+    description: "APIs & services",
+  },
+  {
+    id: "platform",
+    label: "Platform",
+    description: "Shared services",
+  },
+  {
+    id: "web-app",
+    label: "Web app",
+    description: "Frontend & UX",
+  },
+  {
+    id: "billing-svc",
+    label: "Billing",
+    description: "Payments & plans",
+  },
+  {
+    id: "infra",
+    label: "Infrastructure",
+    description: "Cloud & deploy",
+  },
+]
+
+export function getBlueprintSystemOption(id: string) {
+  if (id === BLUEPRINT_GENERAL_SYSTEM) {
+    return {
+      id: BLUEPRINT_GENERAL_SYSTEM,
+      label: "General",
+      description: "No repo attached",
+    }
+  }
+
+  return (
+    blueprintSystemOptions.find((option) => option.id === id) ??
+    blueprintSystemOptions[0]
+  )
+}

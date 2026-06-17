@@ -1,4 +1,3 @@
-import { DashboardShell } from "@/components/dashboard-shell"
 import { PageContainer } from "@/components/page-container"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
@@ -41,7 +40,6 @@ function avg(values: number[]) {
 
 export default function RoadmapPage() {
   return (
-    <DashboardShell breadcrumb={[{ label: "Operate" }, { label: "Roadmap" }]}>
       <PageContainer>
         <PageHeader
           title="Roadmap"
@@ -80,6 +78,5 @@ export default function RoadmapPage() {
           })}
         </div>
       </PageContainer>
-    </DashboardShell>
   )
 }
