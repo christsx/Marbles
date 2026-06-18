@@ -1,6 +1,6 @@
 import type { BlueprintDeliverableKind } from "@/lib/blueprints/intent"
 
-export type StudioTemplateCategory = "client" | "internal"
+export type StudioTemplateCategory = "client" | "marketing" | "internal" | "ops"
 
 export type StudioTemplateSection = {
   heading: string

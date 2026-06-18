@@ -1,1 +1,6 @@
-export { BlueprintStudio as BlueprintForm, BlueprintStudio } from "@/components/blueprints/blueprint-studio"
+export {
+  BlueprintStudio as BlueprintForm,
+  BlueprintStudio,
+  Blueprint,
+  BlueprintAgent,
+} from "@/components/blueprints/blueprint-studio"

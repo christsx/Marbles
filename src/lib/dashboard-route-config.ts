@@ -14,7 +14,7 @@ const ROUTES: Record<string, DashboardRouteConfig> = {
     breadcrumb: [{ label: "Factory" }, { label: "Requirements" }],
   },
   "/dashboard/blueprints": {
-    breadcrumb: [{ label: "Factory" }, { label: "Blueprints" }],
+    breadcrumb: [{ label: "Factory" }, { label: "Blueprint" }],
     showNotifications: false,
     fullHeight: true,
   },
@@ -92,7 +92,7 @@ export function getDashboardRouteConfig(pathname: string): DashboardRouteConfig 
     return {
       breadcrumb: [
         { label: "Factory" },
-        { label: "Blueprints", href: "/dashboard/blueprints" },
+        { label: "Blueprint", href: "/dashboard/blueprints" },
         { label: "Blueprint" },
       ],
       showNotifications: false,

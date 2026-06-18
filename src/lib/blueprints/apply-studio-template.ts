@@ -11,6 +11,6 @@ export function getStudioTemplateOpenState(templateId: string) {
     template,
     title: template.documentTitle,
     content: buildTemplateEditorDocument(template),
-    assistantHint: `${template.title} is open on the right with example content. Tell me about your client or attach a brief and I will replace it with their details.`,
+    assistantHint: `${template.title} is open with example content. Describe the engagement or attach a brief and I will replace it with your details.`,
   }
 }

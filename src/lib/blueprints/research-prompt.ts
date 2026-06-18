@@ -85,8 +85,8 @@ export function buildBlueprintResearchUserPrompt(input: {
       ? `GitHub repo attached: ${input.research.activeRepo ?? "yes"}.`
       : "No GitHub repo attached. General chat.",
     workflowBlock,
-    template?.category === "client"
-      ? "Client template active. Do not reference GitHub, codebase, or internal architecture unless the user explicitly asks. Ground the answer in attachments and the user message."
+    template?.category === "client" || template?.category === "marketing"
+      ? "External or GTM template active. Do not reference GitHub, codebase, or internal architecture unless the user explicitly asks. Ground the answer in attachments and the user message."
       : null,
     template && input.hasDocument && input.research.attachmentBlock
       ? `CRITICAL: A template document with example content is open on the right. The user attached source material. Replace the example sections with facts synthesized from the attachment. Reply with one brief sentence in chat, then a ## block for every template section you can fill. Use these exact headings:\n${buildTemplateSectionHeadingGuide(template)}\nFill all sections the attachment supports. Structured content must appear only under ## headings, not in the chat sentence.`

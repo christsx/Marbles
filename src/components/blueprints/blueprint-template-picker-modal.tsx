@@ -2,13 +2,11 @@
 
 import * as React from "react"
 
-import { TemplatePickerGroup } from "@/components/blueprints/template-picker-group"
+import { TemplatePickerModalBody } from "@/components/blueprints/template-picker-modal-body"
 import type { Workflow } from "@/lib/assistant/types"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import {
   listStudioTemplateWorkflows,
-  studioTemplatesByCategory,
-  templateToWorkflow,
 } from "@/lib/blueprints/studio-templates"
 import { cn } from "@/lib/utils"
 
@@ -31,14 +29,6 @@ export function BlueprintTemplatePickerModal({
   const [submitting, setSubmitting] = React.useState(false)
 
   const workflows = React.useMemo(() => listStudioTemplateWorkflows(), [])
-  const clientWorkflows = React.useMemo(
-    () => studioTemplatesByCategory("client").map(templateToWorkflow),
-    []
-  )
-  const internalWorkflows = React.useMemo(
-    () => studioTemplatesByCategory("internal").map(templateToWorkflow),
-    []
-  )
 
   React.useEffect(() => {
     if (!open) return
@@ -67,25 +57,12 @@ export function BlueprintTemplatePickerModal({
         <div className="shrink-0 px-5 py-4 pr-12">
           <DialogTitle className="text-base font-semibold">Templates</DialogTitle>
           <p className="mt-1 text-xs text-muted-foreground">
-            Opens a pre-filled doc on the right. Use chat to fill sections from a brief.
+            Example doc opens on the right. Chat or attach a brief to replace it with your engagement.
           </p>
         </div>
 
         <div className="blueprint-template-modal-scroll min-h-0 flex-1 overflow-y-auto px-5">
-          <div className="space-y-5 pb-4">
-            <TemplatePickerGroup
-              label="Client"
-              workflows={clientWorkflows}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-            />
-            <TemplatePickerGroup
-              label="Internal"
-              workflows={internalWorkflows}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-            />
-          </div>
+          <TemplatePickerModalBody selectedId={selectedId} onSelect={setSelectedId} />
         </div>
 
         <div className="blueprint-template-modal-footer shrink-0 px-5 pb-8 pt-4">

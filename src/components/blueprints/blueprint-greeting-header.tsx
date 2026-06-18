@@ -3,7 +3,7 @@
 import * as React from "react"
 
 import { AppLogomark } from "@/components/app-logomark"
-import { getStudioGreeting } from "@/lib/blueprints/studio-greeting"
+import { getAgentGreeting } from "@/lib/blueprints/agent-greeting"
 import { cn } from "@/lib/utils"
 
 type BlueprintGreetingHeaderProps = {
@@ -16,7 +16,7 @@ export function BlueprintGreetingHeader({
   ready,
 }: BlueprintGreetingHeaderProps) {
   const [visible, setVisible] = React.useState(false)
-  const greeting = getStudioGreeting(username)
+  const greeting = getAgentGreeting(username)
 
   React.useEffect(() => {
     if (!ready) return

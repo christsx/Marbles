@@ -47,7 +47,7 @@ export default async function BlueprintDetailPage({
       <SetDashboardBreadcrumb
         breadcrumb={[
           { label: "Factory" },
-          { label: "Blueprints", href: "/dashboard/blueprints" },
+          { label: "Blueprint", href: "/dashboard/blueprints" },
           { label: blueprint.id },
         ]}
       />
@@ -57,7 +57,7 @@ export default async function BlueprintDetailPage({
           className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeftIcon className="size-4" />
-          Back to Blueprints
+          Back to Blueprint
         </Link>
 
         <PageHeader

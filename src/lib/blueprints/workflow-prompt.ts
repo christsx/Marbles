@@ -10,6 +10,19 @@ export const ATTACHMENT_SCOPING_PROMPT = `Analyze the attached document(s). Incl
 3. Numbered implementation tasks with dependencies and definition of done
 Ground everything in the document. Flag gaps that need client decisions.`
 
+function templateAudience(template: StudioTemplate) {
+  switch (template.category) {
+    case "client":
+      return "External facing. For customers, partners, or portfolio companies. Plain language."
+    case "marketing":
+      return "Go to market. Clear audience, channels, messaging, and measurable outcomes."
+    case "ops":
+      return "Operations and production. Actionable procedures, escalation, and incident clarity."
+    default:
+      return "Internal delivery team. Precise and buildable."
+  }
+}
+
 function formatTemplateBlock(template: StudioTemplate) {
   const outline = template.sections
     .map((section) => `- ${section.heading}: ${section.body}`)
@@ -22,7 +35,7 @@ function formatTemplateBlock(template: StudioTemplate) {
   return `ACTIVE TEMPLATE (${template.title}):
 ${template.description}
 
-Audience: ${template.category === "client" ? "Client-facing. Plain language, no internal jargon." : "Internal delivery team. Precise and buildable."}
+Audience: ${templateAudience(template)}
 
 ${repoRule}
 

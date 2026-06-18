@@ -21,7 +21,7 @@ export const DASHBOARD_NAV_SECTIONS: DashboardNavSection[] = [
     icon: FactoryIcon,
     items: [
       { title: "Overview", url: "/dashboard" },
-      { title: "Blueprints", url: "/dashboard/blueprints" },
+      { title: "Blueprint", url: "/dashboard/blueprints" },
     ],
   },
   {

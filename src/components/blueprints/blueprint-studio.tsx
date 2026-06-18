@@ -13,6 +13,7 @@ import type { BlueprintEditorHandle } from "@/components/blueprints/blueprint-ed
 import { emptyBlueprint } from "@/lib/blueprint-editor"
 import { BLUEPRINT_GENERAL_SYSTEM } from "@/lib/blueprints"
 import { getStudioTemplateOpenState } from "@/lib/blueprints/apply-studio-template"
+import { BLUEPRINT_LOADED_MESSAGE } from "@/lib/blueprints/agent-branding"
 import { firstPendingSectionId } from "@/lib/blueprints/template-document"
 import { cn } from "@/lib/utils"
 
@@ -91,8 +92,7 @@ export function BlueprintStudio({
       {
         id: "loaded-assistant",
         role: "assistant",
-        content:
-          'Blueprint loaded. Chat is general by default — attach a project from Projects when you want repo-specific answers (defaults to your workspace repo).',
+        content: BLUEPRINT_LOADED_MESSAGE,
       },
     ])
   }, [isEditing, setMessages])
@@ -190,3 +190,9 @@ export function BlueprintStudio({
     </BlueprintStudioShell>
   )
 }
+
+/** Preferred product name — same workspace as {@link BlueprintStudio}. */
+export const Blueprint = BlueprintStudio
+
+/** @deprecated Use Blueprint */
+export const BlueprintAgent = BlueprintStudio

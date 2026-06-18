@@ -32,7 +32,7 @@ describe("buildWorkflowPromptBlock", () => {
 
   it("includes template title and sections", () => {
     const block = buildWorkflowPromptBlock("client-sow")
-    expect(block).toContain("Client SOW")
+    expect(block).toContain("Statement of Work")
     expect(block).toContain("Implementation tasks")
     expect(block).toContain("Do not reference GitHub")
   })
