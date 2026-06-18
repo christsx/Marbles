@@ -42,3 +42,6 @@ yarn-error.log*
 next-env.d.ts
 
 rev_os_-_CLI_Quickstart-oauth-credentials.txt
+
+# local reference clone (not a git submodule)
+/pipedream-connect-examples
