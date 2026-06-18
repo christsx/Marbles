@@ -17,10 +17,9 @@ export type BlueprintComposerProps = {
   onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void
   onSubmit: () => void
   onAttachFiles: (files: BlueprintProjectContext["attachments"]) => void
-  onToggleRepo: () => void
   onRemoveRepo: () => void
   onRemoveAttachment: (id: string) => void
-  onProjectsClick?: () => void
+  onSelectGitHubProject: (fullName: string) => void
   selectedWorkflow?: Workflow | null
   onWorkflowSelect?: (workflow: Workflow | null) => void
   large?: boolean

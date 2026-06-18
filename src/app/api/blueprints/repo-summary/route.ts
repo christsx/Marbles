@@ -15,5 +15,6 @@ export async function GET() {
     connected: Boolean(context?.connected),
     configured: Boolean(context?.configured),
     activeRepo: context?.activeRepo ?? null,
+    trackedRepos: context?.trackedRepos ?? [],
   })
 }

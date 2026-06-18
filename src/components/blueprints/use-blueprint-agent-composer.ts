@@ -33,7 +33,7 @@ export function useBlueprintAgentComposer({
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const {
     projectContext,
-    toggleRepo,
+    selectGitHubProject,
     attachFiles,
     removeRepo,
     removeAttachment,
@@ -91,9 +91,9 @@ export function useBlueprintAgentComposer({
     },
     onSubmit: () => submit(),
     onAttachFiles: attachFiles,
-    onToggleRepo: () => void toggleRepo(),
     onRemoveRepo: removeRepo,
     onRemoveAttachment: removeAttachment,
+    onSelectGitHubProject: selectGitHubProject,
     selectedWorkflow,
     onWorkflowSelect: setSelectedWorkflow,
   }

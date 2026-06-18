@@ -1,11 +1,7 @@
 "use client"
 
 import { AppLogomark } from "@/components/app-logomark"
-import {
-  GitBranchIcon,
-  LayoutGridIcon,
-  UploadIcon,
-} from "lucide-react"
+import { UploadIcon } from "lucide-react"
 
 import {
   DropdownMenuContent,
@@ -15,19 +11,13 @@ import {
 type BlueprintAddDocMenuProps = {
   disabled?: boolean
   uploading: boolean
-  repoEnabled: boolean
   onUploadClick: () => void
-  onBrowseClick: () => void
-  onToggleRepo: () => void
 }
 
 export function BlueprintAddDocMenu({
   disabled = false,
   uploading,
-  repoEnabled,
   onUploadClick,
-  onBrowseClick,
-  onToggleRepo,
 }: BlueprintAddDocMenuProps) {
   return (
     <DropdownMenuContent
@@ -49,25 +39,6 @@ export function BlueprintAddDocMenu({
           <UploadIcon className="mr-2 size-4 text-muted-foreground" />
         )}
         <span>{uploading ? "Uploading…" : "Upload files"}</span>
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        className="blueprint-add-doc-menu-item"
-        disabled={disabled}
-        onSelect={(event) => {
-          event.preventDefault()
-          onBrowseClick()
-        }}
-      >
-        <LayoutGridIcon className="mr-2 size-4 text-muted-foreground" />
-        <span>Browse all</span>
-      </DropdownMenuItem>
-      <DropdownMenuItem
-        className="blueprint-add-doc-menu-item"
-        disabled={disabled}
-        onSelect={onToggleRepo}
-      >
-        <GitBranchIcon className="mr-2 size-4 text-muted-foreground" />
-        <span>{repoEnabled ? "Remove GitHub repo" : "Add GitHub repo"}</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
   )

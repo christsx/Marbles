@@ -1,10 +1,7 @@
 "use client"
 
-import * as React from "react"
-
 import { BlueprintComposer, type BlueprintComposerProps } from "@/components/blueprints/blueprint-composer"
 import { BlueprintGreetingHeader } from "@/components/blueprints/blueprint-greeting-header"
-import { SelectAssistantProjectModal } from "@/components/blueprints/select-assistant-project-modal"
 
 type BlueprintInitialViewProps = {
   username: string
@@ -17,30 +14,17 @@ export function BlueprintInitialView({
   ready,
   composerProps,
 }: BlueprintInitialViewProps) {
-  const [projectModalOpen, setProjectModalOpen] = React.useState(false)
-
   return (
-    <>
-      <div className="blueprint-studio-landing flex h-full w-full flex-col px-4 md:px-6">
-        <div className="blueprint-studio-landing-body flex flex-1 flex-col items-center justify-center">
-          <div className="blueprint-studio-landing-inner relative flex w-full max-w-4xl flex-col items-center px-0 xl:px-8">
-            <BlueprintGreetingHeader username={username} ready={ready} />
-            <BlueprintComposer
-              {...composerProps}
-              large
-              onProjectsClick={() => setProjectModalOpen(true)}
-            />
-            <p className="blueprint-chat-disclaimer blueprint-landing-disclaimer text-center">
-              Torse is AI and may get things wrong. Please verify important details.
-            </p>
-          </div>
+    <div className="blueprint-studio-landing flex h-full w-full flex-col px-4 md:px-6">
+      <div className="blueprint-studio-landing-body flex flex-1 flex-col items-center justify-center">
+        <div className="blueprint-studio-landing-inner relative flex w-full max-w-4xl flex-col items-center px-0 xl:px-8">
+          <BlueprintGreetingHeader username={username} ready={ready} />
+          <BlueprintComposer {...composerProps} large />
+          <p className="blueprint-chat-disclaimer blueprint-landing-disclaimer text-center">
+            Torse is AI and may get things wrong. Please verify important details.
+          </p>
         </div>
       </div>
-
-      <SelectAssistantProjectModal
-        open={projectModalOpen}
-        onClose={() => setProjectModalOpen(false)}
-      />
-    </>
+    </div>
   )
 }

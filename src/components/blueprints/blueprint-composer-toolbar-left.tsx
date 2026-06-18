@@ -5,6 +5,7 @@ import { CheckIcon, FolderOpenIcon, LibraryIcon } from "lucide-react"
 
 import { AssistantWorkflowModal } from "@/components/blueprints/assistant-workflow-modal"
 import { BlueprintAddDocButton } from "@/components/blueprints/blueprint-add-doc-button"
+import { SelectGitHubProjectModal } from "@/components/blueprints/select-github-project-modal"
 import type { Workflow } from "@/lib/assistant/types"
 import { cn } from "@/lib/utils"
 
@@ -15,8 +16,7 @@ type BlueprintComposerToolbarLeftProps = {
   selectedCount: number
   selectedWorkflow: Workflow | null
   onAttachFiles: Parameters<typeof BlueprintAddDocButton>[0]["onAttachFiles"]
-  onToggleRepo: () => void
-  onProjectsClick?: () => void
+  onSelectGitHubProject: (fullName: string) => void
   onWorkflowSelect: (workflow: Workflow | null) => void
 }
 
@@ -27,11 +27,11 @@ export function BlueprintComposerToolbarLeft({
   selectedCount,
   selectedWorkflow,
   onAttachFiles,
-  onToggleRepo,
-  onProjectsClick,
+  onSelectGitHubProject,
   onWorkflowSelect,
 }: BlueprintComposerToolbarLeftProps) {
   const [workflowOpen, setWorkflowOpen] = React.useState(false)
+  const [projectOpen, setProjectOpen] = React.useState(false)
 
   return (
     <>
@@ -39,10 +39,8 @@ export function BlueprintComposerToolbarLeft({
         <BlueprintAddDocButton
           disabled={disabled}
           hideLabel={hideLabel}
-          repoEnabled={repoEnabled}
           selectedCount={selectedCount}
           onAttachFiles={onAttachFiles}
-          onToggleRepo={onToggleRepo}
         />
 
         <button
@@ -63,18 +61,20 @@ export function BlueprintComposerToolbarLeft({
           <span className={hideLabel ? "sr-only" : undefined}>Workflows</span>
         </button>
 
-        {onProjectsClick ? (
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={onProjectsClick}
-            aria-label="Open projects"
-            className="blueprint-composer-action"
-          >
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setProjectOpen(true)}
+          aria-label="Add GitHub project"
+          className={cn("blueprint-composer-action", repoEnabled && "has-selection")}
+        >
+          {repoEnabled ? (
+            <CheckIcon className="size-3.5 shrink-0" />
+          ) : (
             <FolderOpenIcon className="size-3.5 shrink-0" />
-            <span className={hideLabel ? "sr-only" : undefined}>Projects</span>
-          </button>
-        ) : null}
+          )}
+          <span className={hideLabel ? "sr-only" : undefined}>Projects</span>
+        </button>
       </div>
 
       <AssistantWorkflowModal
@@ -85,6 +85,12 @@ export function BlueprintComposerToolbarLeft({
           setWorkflowOpen(false)
         }}
         initialWorkflowId={selectedWorkflow?.id}
+      />
+
+      <SelectGitHubProjectModal
+        open={projectOpen}
+        onClose={() => setProjectOpen(false)}
+        onSelect={onSelectGitHubProject}
       />
     </>
   )

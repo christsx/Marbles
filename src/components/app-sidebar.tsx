@@ -1,12 +1,9 @@
 "use client"
 
-import * as React from "react"
 import Link from "next/link"
 
 import { useOrganization } from "@clerk/nextjs"
-import { AppLogomark } from "@/components/app-logomark"
 import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -19,70 +16,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { FactoryIcon, BoxesIcon, ShieldCheckIcon, CompassIcon, LifeBuoyIcon, SendIcon } from "lucide-react"
+import { DASHBOARD_NAV_SECTIONS } from "@/lib/dashboard-nav"
+import { FactoryIcon } from "lucide-react"
 
-const data = {
-  navMain: [
-    {
-      title: "Factory",
-      url: "#",
-      icon: <FactoryIcon />,
-      isActive: true,
-      items: [
-        { title: "Overview", url: "/dashboard" },
-        { title: "Requirements", url: "/dashboard/requirements" },
-        { title: "Blueprints", url: "/dashboard/blueprints" },
-        { title: "Work Orders", url: "/dashboard/work-orders" },
-      ],
-    },
-    {
-      title: "Build & Ship",
-      url: "#",
-      icon: <BoxesIcon />,
-      items: [
-        { title: "Agents", url: "/dashboard/agents" },
-        { title: "Artifacts", url: "/dashboard/artifacts" },
-        { title: "Tests", url: "/dashboard/tests" },
-        { title: "Deployments", url: "/dashboard/deployments" },
-        { title: "Integrations", url: "/dashboard/integrations" },
-      ],
-    },
-    {
-      title: "Quality",
-      url: "#",
-      icon: <ShieldCheckIcon />,
-      items: [
-        { title: "Code Review", url: "/dashboard/code-review" },
-        { title: "Feedback", url: "/dashboard/feedback" },
-        { title: "Incidents", url: "/dashboard/incidents" },
-        { title: "Metrics", url: "/dashboard/metrics" },
-      ],
-    },
-    {
-      title: "Operate",
-      url: "#",
-      icon: <CompassIcon />,
-      items: [
-        { title: "Briefings", url: "/dashboard/briefings" },
-        { title: "Cost & Models", url: "/dashboard/cost" },
-        { title: "Roadmap", url: "/dashboard/roadmap" },
-        { title: "Playbooks", url: "/dashboard/playbooks" },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: <LifeBuoyIcon />,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: <SendIcon />,
-    },
-  ],
-}
+const navMain = DASHBOARD_NAV_SECTIONS.map(({ icon: Icon, ...section }) => ({
+  ...section,
+  icon: <Icon />,
+}))
 
 export function AppSidebar({
   collapsible = "offcanvas",
@@ -104,7 +44,7 @@ export function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard" prefetch>
+              <Link href="/dashboard/blueprints" prefetch>
                 {ready ? (
                   <>
                     <Avatar className="size-8 rounded-lg after:rounded-lg">
@@ -115,7 +55,7 @@ export function AppSidebar({
                       />
                       <AvatarFallback className="rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                         {orgName?.charAt(0).toUpperCase() ?? (
-                          <AppLogomark size={16} />
+                          <FactoryIcon className="size-4" />
                         )}
                       </AvatarFallback>
                     </Avatar>
@@ -139,8 +79,7 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

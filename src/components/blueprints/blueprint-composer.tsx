@@ -29,10 +29,9 @@ export function BlueprintComposer({
   onKeyDown,
   onSubmit,
   onAttachFiles,
-  onToggleRepo,
   onRemoveRepo,
   onRemoveAttachment,
-  onProjectsClick,
+  onSelectGitHubProject,
   selectedWorkflow = null,
   onWorkflowSelect,
   large = false,
@@ -92,8 +91,7 @@ export function BlueprintComposer({
             selectedCount={projectContext.attachments.length}
             selectedWorkflow={selectedWorkflow}
             onAttachFiles={onAttachFiles}
-            onToggleRepo={onToggleRepo}
-            onProjectsClick={onProjectsClick}
+            onSelectGitHubProject={onSelectGitHubProject}
             onWorkflowSelect={onWorkflowSelect ?? (() => {})}
           />
           <div className="blueprint-composer-controls-right">

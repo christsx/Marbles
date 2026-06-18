@@ -15,24 +15,19 @@ import { cn } from "@/lib/utils"
 type BlueprintAddDocButtonProps = {
   disabled?: boolean
   hideLabel?: boolean
-  repoEnabled: boolean
   selectedCount: number
   onAttachFiles: (attachments: BlueprintAttachment[]) => void
-  onToggleRepo: () => void
 }
 
 export function BlueprintAddDocButton({
   disabled = false,
   hideLabel = false,
-  repoEnabled,
   selectedCount,
   onAttachFiles,
-  onToggleRepo,
 }: BlueprintAddDocButtonProps) {
   const [open, setOpen] = React.useState(false)
   const [uploading, setUploading] = React.useState(false)
   const uploadInputRef = React.useRef<HTMLInputElement>(null)
-  const browseInputRef = React.useRef<HTMLInputElement>(null)
 
   const attachFromInput = React.useCallback(
     (files: FileList | null) => {
@@ -58,17 +53,6 @@ export function BlueprintAddDocButton({
             setUploading(false)
             if (uploadInputRef.current) uploadInputRef.current.value = ""
           }
-        }}
-      />
-      <input
-        ref={browseInputRef}
-        type="file"
-        accept={BLUEPRINT_DOC_ACCEPT}
-        multiple
-        className="hidden"
-        onChange={(event) => {
-          attachFromInput(event.target.files)
-          if (browseInputRef.current) browseInputRef.current.value = ""
         }}
       />
 
@@ -104,10 +88,7 @@ export function BlueprintAddDocButton({
         <BlueprintAddDocMenu
           disabled={disabled}
           uploading={uploading}
-          repoEnabled={repoEnabled}
           onUploadClick={() => uploadInputRef.current?.click()}
-          onBrowseClick={() => browseInputRef.current?.click()}
-          onToggleRepo={onToggleRepo}
         />
       </DropdownMenu>
     </>
