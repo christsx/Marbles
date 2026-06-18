@@ -31,6 +31,7 @@ export async function POST(request: Request) {
     corrections?: string[]
     includeRepoContext?: boolean
     attachmentContext?: string | null
+    modelId?: string | null
   }
 
   try {
@@ -67,7 +68,10 @@ export async function POST(request: Request) {
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
         try {
-          for await (const chunk of streamText(chatRequest)) {
+          for await (const chunk of streamText({
+            ...chatRequest,
+            modelId: body.modelId,
+          })) {
             controller.enqueue(encoder.encode(chunk))
           }
 

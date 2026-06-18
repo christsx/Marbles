@@ -2,9 +2,9 @@ import type { OutputData } from "@editorjs/editorjs"
 
 import {
   getBlueprintMaxTokens,
-  getBlueprintModelProvider,
 } from "@/lib/ai/config"
 import { generateText } from "@/lib/ai/generate-text"
+import { resolveModelRequest } from "@/lib/ai/model-catalog"
 import {
   BLUEPRINT_SYSTEM_PROMPT,
   BLUEPRINT_SYSTEM_PROMPT_COMPACT,
@@ -18,6 +18,7 @@ export type GenerateBlueprintInput = {
   title: string
   system: string
   prompt?: string
+  modelId?: string | null
 }
 
 function isGroqTokenLimitError(error: unknown) {
@@ -51,7 +52,7 @@ async function requestBlueprintJson(
     prompt?: string
     connected?: boolean
   },
-  options: { compact: boolean; maxTokens: number; strict?: boolean }
+  options: { compact: boolean; maxTokens: number; strict?: boolean; modelId?: string | null }
 ) {
   const system = options.compact
     ? BLUEPRINT_SYSTEM_PROMPT_COMPACT
@@ -69,6 +70,7 @@ async function requestBlueprintJson(
       ? `${prompt}\n\nReturn ONLY valid JSON {"blocks":[...]}. No markdown fences. No explanation.`
       : prompt,
     maxTokens: options.maxTokens,
+    modelId: options.modelId,
   })
 
   return parseBlueprintOutput(raw)
@@ -77,7 +79,8 @@ async function requestBlueprintJson(
 export async function generateBlueprintWithLlm(
   input: GenerateBlueprintInput
 ): Promise<OutputData> {
-  const provider = getBlueprintModelProvider()
+  const resolved = resolveModelRequest(input.modelId)
+  const provider = resolved.provider
   const maxTokens = getBlueprintMaxTokens(provider)
   const compact = provider === "groq"
 
@@ -96,6 +99,7 @@ export async function generateBlueprintWithLlm(
     return await requestBlueprintJson(input, promptInput, {
       compact,
       maxTokens,
+      modelId: input.modelId,
     })
   } catch (error) {
     if (isJsonParseError(error)) {
@@ -104,6 +108,7 @@ export async function generateBlueprintWithLlm(
           compact: true,
           maxTokens: compact ? 1536 : maxTokens,
           strict: true,
+          modelId: input.modelId,
         })
       } catch (retryError) {
         throw retryError
@@ -117,6 +122,7 @@ export async function generateBlueprintWithLlm(
     return requestBlueprintJson(input, promptInput, {
       compact: true,
       maxTokens: 1536,
+      modelId: input.modelId,
     })
   }
 }

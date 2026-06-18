@@ -11,6 +11,7 @@ export type StreamBlueprintChatInput = {
   corrections?: string[]
   includeRepoContext?: boolean
   attachmentContext?: string | null
+  modelId?: string | null
 }
 
 function parseStreamError(raw: string): string | null {

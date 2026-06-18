@@ -13,6 +13,7 @@ export type AnswerBlueprintQuestionInput = {
   corrections?: string[]
   includeRepoContext?: boolean
   attachmentContext?: string | null
+  modelId?: string | null
 }
 
 export async function answerBlueprintQuestion(
@@ -23,6 +24,7 @@ export async function answerBlueprintQuestion(
   const text = await generateText({
     ...chatRequest,
     format: "text",
+    modelId: input.modelId,
   })
 
   return normalizeChatProse(sanitizeLlmText(text))

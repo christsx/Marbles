@@ -22,6 +22,7 @@ import {
 import { detectQueryFocus } from "@/lib/blueprints/query-focus"
 import { chatAnswerToEditorDoc } from "@/lib/blueprints/chat-answer-to-editor-doc"
 import { dropLastChatTurn } from "@/lib/blueprints/drop-last-chat-turn"
+import { isGroqModelId } from "@/lib/ai/model-catalog"
 import { deliverableDocumentTitle } from "@/lib/blueprints/prose-to-editorjs"
 import type { BlueprintProjectContext } from "@/lib/blueprints/project-context.types"
 import {
@@ -212,7 +213,8 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
       research: {
         includeRepoContext: boolean
         attachmentContext: string | null
-      }
+      },
+      modelId: string
     ): Promise<QuestionAskResult> => {
       const result = await answerBlueprintQuestionAction({
         question: prompt,
@@ -223,6 +225,7 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
         corrections,
         includeRepoContext: research.includeRepoContext,
         attachmentContext: research.attachmentContext,
+        modelId,
       })
 
       if (!isSessionActive(session)) {
@@ -267,7 +270,8 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
       research: {
         includeRepoContext: boolean
         attachmentContext: string | null
-      }
+      },
+      modelId: string
     ): Promise<QuestionAskResult> => {
       const result = await streamBlueprintChat(
         {
@@ -279,6 +283,7 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
           corrections,
           includeRepoContext: research.includeRepoContext,
           attachmentContext: research.attachmentContext,
+          modelId,
         },
         (chunk) => {
           if (!isSessionActive(session)) {
@@ -306,7 +311,8 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
         session,
         deliverable,
         corrections,
-        research
+        research,
+        modelId
       )
     },
     [
@@ -324,6 +330,7 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
     async (
       prompt: string,
       projectContext: BlueprintProjectContext,
+      modelId: string,
       options?: { retry?: boolean }
     ) => {
       setStudioError(null)
@@ -381,7 +388,8 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
 
       try {
         if (intent === "question") {
-          const outcome = USE_STREAMING
+          const shouldStream = USE_STREAMING && isGroqModelId(modelId)
+          const outcome = shouldStream
             ? await askWithStream(
                 prompt,
                 pendingId,
@@ -389,7 +397,8 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
                 session,
                 deliverable,
                 corrections,
-                research
+                research,
+                modelId
               )
             : await askWithServerAction(
                 prompt,
@@ -398,7 +407,8 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
                 session,
                 deliverable,
                 corrections,
-                research
+                research,
+                modelId
               )
 
           if (!isSessionActive(session)) {
@@ -432,6 +442,7 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
           title: nextTitle,
           system,
           prompt,
+          modelId,
         })
 
         if (!isSessionActive(session)) {
@@ -512,8 +523,8 @@ export function useBlueprintStudioChat(options: UseBlueprintStudioChatOptions) {
   )
 
   const handleRetry = React.useCallback(
-    (prompt: string, projectContext: BlueprintProjectContext) =>
-      handleSend(prompt, projectContext, { retry: true }),
+    (prompt: string, projectContext: BlueprintProjectContext, modelId: string) =>
+      handleSend(prompt, projectContext, modelId, { retry: true }),
     [handleSend]
   )
 

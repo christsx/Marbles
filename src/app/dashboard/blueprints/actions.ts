@@ -29,6 +29,7 @@ export async function generateBlueprintAction(input: {
   title: string
   system: string
   prompt?: string
+  modelId?: string | null
 }): Promise<GenerateBlueprintState> {
   const title = input.title.trim()
   const system = input.system.trim()
@@ -46,12 +47,17 @@ export async function generateBlueprintAction(input: {
     return {
       status: "error",
       message:
-        "Blueprint generation is not configured. Add GROQ_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY to .env.local.",
+        "Blueprint generation is not configured. Add GROQ_API_KEY to .env.local.",
     }
   }
 
   try {
-    const content = await generateBlueprintWithLlm({ title, system, prompt })
+    const content = await generateBlueprintWithLlm({
+      title,
+      system,
+      prompt,
+      modelId: input.modelId,
+    })
     return { status: "success", content }
   } catch (error) {
     console.error("Blueprint generation failed:", error)
@@ -75,6 +81,7 @@ export async function answerBlueprintQuestionAction(input: {
   corrections?: string[]
   includeRepoContext?: boolean
   attachmentContext?: string | null
+  modelId?: string | null
 }): Promise<AnswerBlueprintQuestionState> {
   const question = input.question.trim()
   const system = input.system.trim()
@@ -91,7 +98,7 @@ export async function answerBlueprintQuestionAction(input: {
     return {
       status: "error",
       message:
-        "Blueprint assistant is not configured. Add GROQ_API_KEY, ANTHROPIC_API_KEY, or OPENAI_API_KEY to .env.local.",
+        "Blueprint assistant is not configured. Add GROQ_API_KEY to .env.local.",
     }
   }
 
@@ -105,6 +112,7 @@ export async function answerBlueprintQuestionAction(input: {
       corrections: input.corrections,
       includeRepoContext: input.includeRepoContext,
       attachmentContext: input.attachmentContext,
+      modelId: input.modelId,
     })
 
     return { status: "success", answer }

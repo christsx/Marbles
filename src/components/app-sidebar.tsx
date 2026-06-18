@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 
 import { useOrganization } from "@clerk/nextjs"
+import { AppLogomark } from "@/components/app-logomark"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
@@ -114,7 +115,7 @@ export function AppSidebar({
                       />
                       <AvatarFallback className="rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                         {orgName?.charAt(0).toUpperCase() ?? (
-                          <FactoryIcon className="size-4" />
+                          <AppLogomark size={16} />
                         )}
                       </AvatarFallback>
                     </Avatar>

@@ -20,11 +20,13 @@ export default async function EditBlueprintPage({
   }
 
   return (
-    <BlueprintStudioDynamic
-      blueprintId={blueprint.id}
-      defaultTitle={blueprint.title}
-      defaultSystem={blueprint.system}
-      initialContent={blueprint.content}
-    />
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <BlueprintStudioDynamic
+        blueprintId={blueprint.id}
+        defaultTitle={blueprint.title}
+        defaultSystem={blueprint.system}
+        initialContent={blueprint.content}
+      />
+    </div>
   )
 }

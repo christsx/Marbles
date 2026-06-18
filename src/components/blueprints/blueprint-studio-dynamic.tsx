@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import type { ComponentProps } from "react"
 
 const BlueprintStudio = dynamic(
   () =>
@@ -10,4 +11,8 @@ const BlueprintStudio = dynamic(
   { ssr: false }
 )
 
-export { BlueprintStudio as BlueprintStudioDynamic }
+export function BlueprintStudioDynamic(
+  props: ComponentProps<typeof BlueprintStudio>
+) {
+  return <BlueprintStudio {...props} />
+}

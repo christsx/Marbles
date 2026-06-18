@@ -1,47 +1,30 @@
 "use client"
 
 import * as React from "react"
-import { ArrowUpIcon } from "lucide-react"
 
-import { BlueprintAddMenu } from "@/components/blueprints/blueprint-add-menu"
+import { BlueprintComposerSend } from "@/components/blueprints/blueprint-composer-send"
+import { BlueprintComposerToolbarLeft } from "@/components/blueprints/blueprint-composer-toolbar-left"
 import { BlueprintContextChips } from "@/components/blueprints/blueprint-context-chips"
-import type { BlueprintProjectContext } from "@/lib/blueprints/project-context.types"
+import { BlueprintModelToggle } from "@/components/blueprints/blueprint-model-toggle"
+import { BlueprintWorkflowChip } from "@/components/blueprints/blueprint-workflow-chip"
+import type { BlueprintComposerProps } from "@/components/blueprints/blueprint-composer.types"
+import {
+  useBlueprintComposerTextarea,
+  useCompactComposerControls,
+} from "@/components/blueprints/use-blueprint-composer-controls"
 import { cn } from "@/lib/utils"
 
-const INPUT_MAX_HEIGHT = 160
-
-function useAutoResizeTextarea(
-  value: string,
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>
-) {
-  React.useLayoutEffect(() => {
-    const textarea = textareaRef.current
-    if (!textarea) return
-    textarea.style.height = "0px"
-    textarea.style.height = `${Math.min(textarea.scrollHeight, INPUT_MAX_HEIGHT)}px`
-  }, [value, textareaRef])
-}
-
-export type BlueprintComposerProps = {
-  input: string
-  generating: boolean
-  projectContext: BlueprintProjectContext
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>
-  onInput: (event: React.ChangeEvent<HTMLTextAreaElement>) => void
-  onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement>) => void
-  onSubmit: () => void
-  onAttachFiles: (files: BlueprintProjectContext["attachments"]) => void
-  onToggleRepo: () => void
-  onRemoveRepo: () => void
-  onRemoveAttachment: (id: string) => void
-  large?: boolean
-}
+export type { BlueprintComposerProps } from "@/components/blueprints/blueprint-composer.types"
 
 export function BlueprintComposer({
   input,
   generating,
   projectContext,
   textareaRef,
+  modelId,
+  apiKeys,
+  modelNotice,
+  onModelChange,
   onInput,
   onKeyDown,
   onSubmit,
@@ -49,61 +32,84 @@ export function BlueprintComposer({
   onToggleRepo,
   onRemoveRepo,
   onRemoveAttachment,
+  onProjectsClick,
+  selectedWorkflow = null,
+  onWorkflowSelect,
   large = false,
 }: BlueprintComposerProps) {
-  useAutoResizeTextarea(input, textareaRef)
+  const controlsRef = React.useRef<HTMLDivElement>(null)
+  useBlueprintComposerTextarea(input, textareaRef)
+  const compactControls = useCompactComposerControls(controlsRef)
 
+  const hasChips =
+    projectContext.repoEnabled ||
+    projectContext.attachments.length > 0 ||
+    Boolean(selectedWorkflow)
   const canSend =
     (input.trim().length > 0 || projectContext.attachments.length > 0) &&
     !generating
 
   return (
-    <div
-      className={cn("blueprint-composer group w-full", large && "blueprint-composer-large")}
-    >
-      <BlueprintContextChips
-        context={projectContext}
-        disabled={generating}
-        onRemoveRepo={onRemoveRepo}
-        onRemoveAttachment={onRemoveAttachment}
-        className="px-3 pt-3"
-      />
-
-      <textarea
-        ref={textareaRef}
-        value={input}
-        onChange={onInput}
-        onKeyDown={onKeyDown}
-        placeholder="Write a message…"
-        disabled={generating}
-        rows={1}
-        aria-label="Blueprint prompt"
-        className="blueprint-composer-input w-full resize-none bg-transparent outline-none focus:outline-none focus-visible:outline-none"
-      />
-
-      <div className="blueprint-composer-toolbar">
-        <BlueprintAddMenu
-          disabled={generating}
-          repoEnabled={projectContext.repoEnabled}
-          onAttachFiles={onAttachFiles}
-          onToggleRepo={onToggleRepo}
-        />
-
-        <div className="blueprint-composer-toolbar-right">
-          <div className="blueprint-composer-send-slot">
-            {canSend ? (
-              <button
-                type="button"
-                aria-label="Send"
-                onClick={onSubmit}
-                className="blueprint-composer-action blueprint-composer-action-send blueprint-composer-chip"
-              >
-                <ArrowUpIcon className="size-[18px] stroke-[2.5]" />
-              </button>
+    <div className={cn("blueprint-composer w-full", large && "blueprint-composer-large")}>
+      <div className="blueprint-composer-card">
+        {hasChips ? (
+          <div className="blueprint-composer-chips flex flex-wrap gap-2">
+            {selectedWorkflow && onWorkflowSelect ? (
+              <BlueprintWorkflowChip
+                workflow={selectedWorkflow}
+                disabled={generating}
+                onRemove={() => onWorkflowSelect(null)}
+              />
             ) : null}
+            <BlueprintContextChips
+              context={projectContext}
+              disabled={generating}
+              onRemoveRepo={onRemoveRepo}
+              onRemoveAttachment={onRemoveAttachment}
+            />
+          </div>
+        ) : null}
+
+        <div className="blueprint-composer-input-wrap">
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={onInput}
+            onKeyDown={onKeyDown}
+            placeholder="Write a message…"
+            disabled={generating}
+            rows={1}
+            aria-label="Blueprint prompt"
+            className="blueprint-composer-input"
+          />
+        </div>
+
+        <div ref={controlsRef} className="blueprint-composer-controls">
+          <BlueprintComposerToolbarLeft
+            disabled={generating}
+            hideLabel={compactControls}
+            repoEnabled={projectContext.repoEnabled}
+            selectedCount={projectContext.attachments.length}
+            selectedWorkflow={selectedWorkflow}
+            onAttachFiles={onAttachFiles}
+            onToggleRepo={onToggleRepo}
+            onProjectsClick={onProjectsClick}
+            onWorkflowSelect={onWorkflowSelect ?? (() => {})}
+          />
+          <div className="blueprint-composer-controls-right">
+            <BlueprintModelToggle
+              value={modelId}
+              onChange={onModelChange}
+              apiKeys={apiKeys}
+              disabled={generating}
+            />
+            <BlueprintComposerSend disabled={!canSend} onClick={onSubmit} />
           </div>
         </div>
       </div>
+      {modelNotice ? (
+        <p className="blueprint-composer-notice">{modelNotice}</p>
+      ) : null}
     </div>
   )
 }

@@ -52,5 +52,5 @@ export async function buildAttachmentContextBlock(
     )
   }
 
-  return `USER ATTACHMENTS:\n${parts.join("\n\n")}`
+  return `USER ATTACHMENTS (use for answers and document edits when relevant):\n${parts.join("\n\n")}`
 }

@@ -1,10 +1,11 @@
 "use client"
 
-import * as React from "react"
-import { ChevronRightIcon } from "lucide-react"
-
 import { BlueprintChatActions } from "@/components/blueprints/blueprint-chat-actions"
 import { BlueprintChatMarkdown } from "@/components/blueprints/blueprint-chat-markdown"
+import {
+  BlueprintChatDocPendingBody,
+  BlueprintChatThoughtLine,
+} from "@/components/blueprints/blueprint-chat-thought"
 import type { BlueprintChatMessage } from "@/components/blueprints/blueprint-chat-message.types"
 import { cn } from "@/lib/utils"
 
@@ -65,7 +66,7 @@ function AssistantMessage({
         isLatest && "is-latest"
       )}
     >
-      <ThoughtLine message={message} />
+      <BlueprintChatThoughtLine message={message} />
       <div
         className={cn(
           "blueprint-chat-assistant-body",
@@ -73,7 +74,9 @@ function AssistantMessage({
         )}
       >
         {isStreaming ? <StreamingBody content={message.content} /> : null}
-        {isDocPending ? <DocPendingBody content={message.content} /> : null}
+        {isDocPending ? (
+          <BlueprintChatDocPendingBody content={message.content} />
+        ) : null}
         {!message.pending ? (
           <BlueprintChatMarkdown content={message.content} />
         ) : null}
@@ -90,73 +93,11 @@ function AssistantMessage({
   )
 }
 
-function ThoughtLine({ message }: { message: BlueprintChatMessage }) {
-  const [elapsed, setElapsed] = React.useState(0)
-
-  React.useEffect(() => {
-    if (!message.pending || !message.startedAt) {
-      return
-    }
-
-    const tick = () => {
-      setElapsed(Math.max(0, (Date.now() - message.startedAt!) / 1000))
-    }
-
-    tick()
-    const id = window.setInterval(tick, 200)
-    return () => window.clearInterval(id)
-  }, [message.pending, message.startedAt])
-
-  if (message.pending && !message.content) {
-    const seconds = Math.max(1, Math.round(elapsed) || 1)
-    return (
-      <p className="blueprint-chat-thought">
-        Thought for {seconds}s
-        <span className="blueprint-chat-thought-chevron" aria-hidden>
-          <ChevronRightIcon className="size-3.5" />
-        </span>
-      </p>
-    )
-  }
-
-  if (message.thoughtSeconds) {
-    return (
-      <p className="blueprint-chat-thought">
-        Thought for {message.thoughtSeconds}s
-        <span className="blueprint-chat-thought-chevron" aria-hidden>
-          <ChevronRightIcon className="size-3.5" />
-        </span>
-      </p>
-    )
-  }
-
-  return null
-}
-
-function ThinkingDots() {
-  return (
-    <span className="inline-flex gap-1">
-      <span className="blueprint-chat-dot" />
-      <span className="blueprint-chat-dot animation-delay-150" />
-      <span className="blueprint-chat-dot animation-delay-300" />
-    </span>
-  )
-}
-
 function StreamingBody({ content }: { content: string }) {
   return (
     <div className="blueprint-chat-stream whitespace-pre-wrap">
       {content}
       <span className="blueprint-chat-cursor" aria-hidden />
     </div>
-  )
-}
-
-function DocPendingBody({ content }: { content: string }) {
-  return (
-    <span className="inline-flex items-center gap-2 text-muted-foreground">
-      <ThinkingDots />
-      {content}
-    </span>
   )
 }

@@ -1,26 +1,22 @@
-import {
-  getBlueprintModelProvider,
-  getGroqApiKey,
-  getGroqModel,
-} from "@/lib/ai/config"
+import { getGroqApiKey } from "@/lib/ai/config"
 import {
   getGroqModelOptions,
   getGroqStreamDeltaContent,
 } from "@/lib/ai/groq-chat-options"
+import { isGroqModelId, resolveModelRequest } from "@/lib/ai/model-catalog"
 
 type StreamTextOptions = {
   system: string
   prompt: string
   maxTokens?: number
+  modelId?: string | null
 }
 
 export async function* streamText(
   options: StreamTextOptions
 ): AsyncGenerator<string, void, unknown> {
-  const provider = getBlueprintModelProvider()
-
-  if (provider !== "groq") {
-    throw new Error("Streaming is only supported with GROQ_API_KEY configured.")
+  if (!isGroqModelId(options.modelId)) {
+    throw new Error("Streaming is only supported for Groq models.")
   }
 
   yield* streamGroqText(options)
@@ -30,12 +26,15 @@ async function* streamGroqText({
   system,
   prompt,
   maxTokens = 1200,
+  modelId,
 }: StreamTextOptions): AsyncGenerator<string, void, unknown> {
   const apiKey = getGroqApiKey()
 
   if (!apiKey) {
     throw new Error("GROQ_API_KEY is missing.")
   }
+
+  const model = resolveModelRequest(modelId)
 
   const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
@@ -44,11 +43,11 @@ async function* streamGroqText({
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: getGroqModel(),
+      model: model.apiModel,
       max_tokens: maxTokens,
       temperature: 0.4,
       stream: true,
-      ...getGroqModelOptions(),
+      ...getGroqModelOptions(model.apiModel),
       messages: [
         {
           role: "system",
