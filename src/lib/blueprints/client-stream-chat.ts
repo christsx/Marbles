@@ -1,6 +1,7 @@
 import { sanitizeLlmText } from "@/lib/ai/sanitize-llm-text"
 import type { BlueprintDeliverableKind } from "@/lib/blueprints/intent"
-import { normalizeChatProse } from "@/lib/blueprints/parse-chat-markdown"
+import type { BlueprintChatHistoryTurn } from "@/lib/blueprints/chat-history"
+import { finalizeChatMarkdown } from "@/lib/blueprints/finalize-chat-markdown"
 
 export type StreamBlueprintChatInput = {
   question: string
@@ -12,6 +13,10 @@ export type StreamBlueprintChatInput = {
   includeRepoContext?: boolean
   attachmentContext?: string | null
   modelId?: string | null
+  history?: BlueprintChatHistoryTurn[]
+  userFirstName?: string
+  isFirstTurn?: boolean
+  workflowId?: string | null
 }
 
 function parseStreamError(raw: string): string | null {
@@ -19,10 +24,18 @@ function parseStreamError(raw: string): string | null {
   return match?.[1]?.trim() ?? null
 }
 
+function isAbortError(error: unknown) {
+  return error instanceof DOMException && error.name === "AbortError"
+}
+
 export async function streamBlueprintChat(
   input: StreamBlueprintChatInput,
-  onChunk: (text: string) => void
-): Promise<{ ok: true; answer: string } | { ok: false; message: string }> {
+  onChunk: (text: string) => void,
+  signal?: AbortSignal
+): Promise<
+  | { ok: true; answer: string }
+  | { ok: false; message: string; aborted?: boolean }
+> {
   let response: Response
 
   try {
@@ -30,8 +43,13 @@ export async function streamBlueprintChat(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
+      signal,
     })
   } catch (error) {
+    if (isAbortError(error)) {
+      return { ok: false, message: "Request cancelled.", aborted: true }
+    }
+
     return {
       ok: false,
       message:
@@ -68,10 +86,21 @@ export async function streamBlueprintChat(
         break
       }
 
+      if (signal?.aborted) {
+        await reader.cancel()
+        return { ok: false, message: "Request cancelled.", aborted: true }
+      }
+
       raw += decoder.decode(value, { stream: true })
-      onChunk(raw)
+      onChunk(sanitizeLlmText(raw))
     }
+
+    raw += decoder.decode()
   } catch (error) {
+    if (isAbortError(error)) {
+      return { ok: false, message: "Request cancelled.", aborted: true }
+    }
+
     return {
       ok: false,
       message:
@@ -87,11 +116,13 @@ export async function streamBlueprintChat(
     return { ok: false, message: streamError }
   }
 
-  const answer = normalizeChatProse(sanitizeLlmText(raw))
+  const answer = finalizeChatMarkdown(raw)
 
   if (!answer.trim()) {
     return { ok: false, message: "The model returned an empty response." }
   }
+
+  onChunk(answer)
 
   return { ok: true, answer }
 }

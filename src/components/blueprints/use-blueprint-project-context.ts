@@ -11,11 +11,19 @@ export function useBlueprintProjectContext() {
   const [projectContext, setProjectContext] =
     React.useState<BlueprintProjectContext>(emptyProjectContext)
 
+  const setWorkspaceDefaultRepo = React.useCallback((fullName: string) => {
+    setProjectContext((current) => ({
+      ...current,
+      workspaceDefaultRepo: fullName,
+    }))
+  }, [])
+
   const selectGitHubProject = React.useCallback((fullName: string) => {
     setProjectContext((current) => ({
       ...current,
       repoEnabled: true,
       activeRepo: fullName,
+      workspaceDefaultRepo: current.workspaceDefaultRepo ?? fullName,
     }))
   }, [])
 
@@ -50,6 +58,7 @@ export function useBlueprintProjectContext() {
 
   return {
     projectContext,
+    setWorkspaceDefaultRepo,
     selectGitHubProject,
     attachFiles,
     removeRepo,

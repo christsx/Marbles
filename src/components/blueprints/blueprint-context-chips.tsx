@@ -62,7 +62,9 @@ function ContextChip({
   return (
     <span className="blueprint-context-chip inline-flex max-w-full items-center gap-1.5">
       {icon}
-      <span className="truncate">{label}</span>
+      <span className="min-w-0 truncate" title={label}>
+        {label}
+      </span>
       <button
         type="button"
         disabled={disabled}

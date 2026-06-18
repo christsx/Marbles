@@ -1,8 +1,8 @@
 import type { BlueprintDeliverableKind } from "@/lib/blueprints/intent"
+import type { BlueprintChatHistoryTurn } from "@/lib/blueprints/chat-history"
 import { buildBlueprintChatRequest } from "@/lib/blueprints/build-chat-request"
+import { finalizeChatMarkdown } from "@/lib/blueprints/finalize-chat-markdown"
 import { generateText } from "@/lib/ai/generate-text"
-import { sanitizeLlmText } from "@/lib/ai/sanitize-llm-text"
-import { normalizeChatProse } from "@/lib/blueprints/parse-chat-markdown"
 
 export type AnswerBlueprintQuestionInput = {
   question: string
@@ -14,6 +14,10 @@ export type AnswerBlueprintQuestionInput = {
   includeRepoContext?: boolean
   attachmentContext?: string | null
   modelId?: string | null
+  history?: BlueprintChatHistoryTurn[]
+  userFirstName?: string
+  isFirstTurn?: boolean
+  workflowId?: string | null
 }
 
 export async function answerBlueprintQuestion(
@@ -22,10 +26,13 @@ export async function answerBlueprintQuestion(
   const chatRequest = await buildBlueprintChatRequest(input)
 
   const text = await generateText({
-    ...chatRequest,
+    system: chatRequest.system,
+    prompt: chatRequest.prompt,
+    maxTokens: chatRequest.maxTokens,
     format: "text",
     modelId: input.modelId,
+    history: chatRequest.history,
   })
 
-  return normalizeChatProse(sanitizeLlmText(text))
+  return finalizeChatMarkdown(text)
 }

@@ -19,13 +19,5 @@ export function getGroqStreamDeltaContent(delta?: {
   content?: string | null
   reasoning?: string | null
 }) {
-  if (delta?.content) {
-    return delta.content
-  }
-
-  if (delta?.reasoning) {
-    return delta.reasoning
-  }
-
-  return null
+  return delta?.content ?? null
 }

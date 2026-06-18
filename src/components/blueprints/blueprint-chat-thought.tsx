@@ -12,6 +12,9 @@ export function BlueprintChatThoughtLine({
   message: BlueprintChatMessage
 }) {
   const [elapsed, setElapsed] = React.useState(0)
+  const isWaiting = message.pending && !message.content
+  const isStreaming =
+    message.pending && message.streaming && Boolean(message.content)
 
   React.useEffect(() => {
     if (!message.pending || !message.startedAt) {
@@ -27,7 +30,7 @@ export function BlueprintChatThoughtLine({
     return () => window.clearInterval(id)
   }, [message.pending, message.startedAt])
 
-  if (message.pending && !message.content) {
+  if (isWaiting || isStreaming) {
     const seconds = Math.max(1, Math.round(elapsed) || 1)
     return (
       <p className="blueprint-chat-thought">

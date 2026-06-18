@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server"
 import { streamText } from "@/lib/ai/stream-text"
 import { isBlueprintGenerationConfigured } from "@/lib/ai/config"
 import { buildBlueprintChatRequest } from "@/lib/blueprints/build-chat-request"
+import type { BlueprintChatHistoryTurn } from "@/lib/blueprints/chat-history"
 import type { BlueprintDeliverableKind } from "@/lib/blueprints/intent"
 
 export async function POST(request: Request) {
@@ -32,6 +33,10 @@ export async function POST(request: Request) {
     includeRepoContext?: boolean
     attachmentContext?: string | null
     modelId?: string | null
+    history?: BlueprintChatHistoryTurn[]
+    userFirstName?: string
+    isFirstTurn?: boolean
+    workflowId?: string | null
   }
 
   try {
@@ -59,8 +64,12 @@ export async function POST(request: Request) {
       hasDocument: Boolean(body.hasDocument),
       deliverable: body.deliverable ?? null,
       corrections: body.corrections,
-      includeRepoContext: Boolean(body.includeRepoContext),
+      includeRepoContext: body.includeRepoContext === true,
       attachmentContext: body.attachmentContext ?? null,
+      history: body.history ?? [],
+      userFirstName: body.userFirstName?.trim(),
+      isFirstTurn: Boolean(body.isFirstTurn),
+      workflowId: body.workflowId?.trim() || null,
     })
 
     const encoder = new TextEncoder()
@@ -69,9 +78,17 @@ export async function POST(request: Request) {
       async start(controller) {
         try {
           for await (const chunk of streamText({
-            ...chatRequest,
+            system: chatRequest.system,
+            prompt: chatRequest.prompt,
+            maxTokens: chatRequest.maxTokens,
             modelId: body.modelId,
+            history: chatRequest.history,
           })) {
+            if (request.signal.aborted) {
+              controller.close()
+              return
+            }
+
             controller.enqueue(encoder.encode(chunk))
           }
 

@@ -3,6 +3,7 @@
 import * as React from "react"
 
 import { AppLogomark } from "@/components/app-logomark"
+import { getStudioGreeting } from "@/lib/blueprints/studio-greeting"
 import { cn } from "@/lib/utils"
 
 type BlueprintGreetingHeaderProps = {
@@ -15,6 +16,7 @@ export function BlueprintGreetingHeader({
   ready,
 }: BlueprintGreetingHeaderProps) {
   const [visible, setVisible] = React.useState(false)
+  const greeting = getStudioGreeting(username)
 
   React.useEffect(() => {
     if (!ready) return
@@ -32,7 +34,7 @@ export function BlueprintGreetingHeader({
       >
         <AppLogomark size={30} className="blueprint-initial-greeting-icon shrink-0" />
         <h1 className="blueprint-initial-greeting-text m-0 whitespace-nowrap">
-          Hi, {username}
+          {greeting}
         </h1>
       </div>
     </div>

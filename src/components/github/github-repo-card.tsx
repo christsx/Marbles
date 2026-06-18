@@ -7,7 +7,6 @@ import { ChevronDownIcon, ExternalLinkIcon } from "lucide-react"
 
 import { setActiveRepoAction } from "@/app/dashboard/integrations/actions"
 import { StatusBadge } from "@/components/status-badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   DropdownMenu,
@@ -72,7 +71,52 @@ export function GitHubRepoCard({
     })
   }
 
-  const repoTitle = repoDetails?.htmlUrl ? (
+  const githubLink = repoDetails?.htmlUrl ? (
+    <Link
+      href={repoDetails.htmlUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex shrink-0 items-center text-muted-foreground transition-colors hover:text-foreground"
+      aria-label={`Open ${repoName} on GitHub`}
+    >
+      <ExternalLinkIcon className="size-3.5" />
+    </Link>
+  ) : null
+
+  const repoHeading = canSwap ? (
+    <div className="flex min-w-0 items-center gap-1.5">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            aria-label="Switch repository"
+            className={cn(
+              "inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-md px-1 py-0.5",
+              "font-mono text-base font-medium outline-none",
+              "transition-colors hover:bg-muted/60",
+              "data-[state=open]:bg-muted/60"
+            )}
+          >
+            <span className="truncate">{repoName}</span>
+            <ChevronDownIcon className="size-4 shrink-0 opacity-70" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-auto max-w-md">
+          {trackedRepos.map((repo) => (
+            <DropdownMenuItem
+              key={repo}
+              onClick={() => swapRepo(repo)}
+              className="font-mono text-sm"
+              title={repo}
+            >
+              <span className="truncate">{repo}</span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {githubLink}
+    </div>
+  ) : repoDetails?.htmlUrl ? (
     <Link
       href={repoDetails.htmlUrl}
       target="_blank"
@@ -91,38 +135,7 @@ export function GitHubRepoCard({
   return (
     <Card className={cn(isPending && "opacity-70")}>
       <CardHeader className="flex flex-row items-center justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          {canSwap ? (
-            <div className="flex min-w-0 items-center gap-1">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="shrink-0 text-muted-foreground"
-                    aria-label="Switch repository"
-                  >
-                    <ChevronDownIcon className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="max-w-sm">
-                  {trackedRepos.map((repo) => (
-                    <DropdownMenuItem
-                      key={repo}
-                      onClick={() => swapRepo(repo)}
-                      className="font-mono"
-                    >
-                      {repo}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {repoTitle}
-            </div>
-          ) : (
-            repoTitle
-          )}
-        </div>
+        <div className="min-w-0 flex-1">{repoHeading}</div>
         <StatusBadge
           tone={
             hasTracked && repoDetails ? "success" : hasTracked ? "warning" : "neutral"

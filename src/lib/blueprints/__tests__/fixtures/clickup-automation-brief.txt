@@ -1,0 +1,23 @@
+Client: Mirror Mirror Inc
+Project: ClickUp onboarding automation
+
+Current manual workflow:
+When a sales opportunity moves to MOVE TO PRODUCTION, Amber manually:
+1. Determines the client service type
+2. Assigns the client to the correct ClickUp space
+3. Creates a client folder with naming convention
+4. Builds folder structure from template
+5. Copies tasks and assigns team members
+6. Configures tracking systems
+
+Desired automation:
+Trigger on MOVE TO PRODUCTION status.
+Read Sales Opportunity fields: Business Name, Opportunity Type.
+Map Opportunity Type to ClickUp space (Website Clients -> Website - Current Builds).
+Create client folder, apply template lists, copy tasks with assignees, notify Amber.
+
+Reference folders: Back to Basics Manners, Mirror Mirror Inc.
+
+Open questions:
+- CRM field format for Opportunity Type
+- ClickUp API vs native automation limits

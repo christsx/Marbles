@@ -31,11 +31,7 @@ function isSectionHeader(line: string) {
   const trimmed = line.trim()
   const withoutColon = trimmed.replace(/:$/, "").trim()
 
-  if (SECTION_HEADERS.has(withoutColon.toLowerCase())) {
-    return true
-  }
-
-  return trimmed.endsWith(":") && trimmed.length <= 48
+  return SECTION_HEADERS.has(withoutColon.toLowerCase())
 }
 
 function flushParagraph(lines: string[], blocks: OutputData["blocks"]) {
@@ -130,6 +126,11 @@ export function proseToEditorJs(title: string, prose: string): OutputData {
 
       listStyle = "ordered"
       listItems.push(numberedMatch[1])
+      continue
+    }
+
+    if (listStyle && /^[A-Za-z].{0,40}:\s/.test(line)) {
+      listItems[listItems.length - 1] = `${listItems[listItems.length - 1]} ${line}`
       continue
     }
 

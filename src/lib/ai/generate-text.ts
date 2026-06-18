@@ -2,6 +2,8 @@ import { getGroqApiKey } from "@/lib/ai/config"
 import { getGroqModelOptions } from "@/lib/ai/groq-chat-options"
 import { resolveModelRequest } from "@/lib/ai/model-catalog"
 import { sanitizeLlmText } from "@/lib/ai/sanitize-llm-text"
+import type { BlueprintChatHistoryTurn } from "@/lib/blueprints/chat-history"
+import { buildGroqChatMessages } from "@/lib/blueprints/build-chat-request"
 
 type GenerateTextOptions = {
   system: string
@@ -9,6 +11,7 @@ type GenerateTextOptions = {
   maxTokens?: number
   format?: "json" | "text"
   modelId?: string | null
+  history?: BlueprintChatHistoryTurn[]
 }
 
 export async function generateText({
@@ -17,6 +20,7 @@ export async function generateText({
   maxTokens = 2048,
   format = "json",
   modelId,
+  history = [],
 }: GenerateTextOptions): Promise<string> {
   const model = resolveModelRequest(modelId)
   const apiKey = getGroqApiKey()
@@ -34,18 +38,9 @@ export async function generateText({
     body: JSON.stringify({
       model: model.apiModel,
       max_tokens: maxTokens,
-      temperature: 0.4,
+      temperature: format === "text" ? 0.55 : 0.4,
       ...getGroqModelOptions(model.apiModel),
-      messages: [
-        {
-          role: "system",
-          content:
-            format === "json"
-              ? `${system}\n\nJSON only. No fences. /no_think`
-              : `${system}\n\nPlain text only. No JSON. /no_think`,
-        },
-        { role: "user", content: prompt },
-      ],
+      messages: buildGroqChatMessages({ system, prompt, history, format }),
     }),
   })
 

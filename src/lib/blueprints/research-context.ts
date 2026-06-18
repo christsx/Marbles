@@ -56,16 +56,24 @@ function emptyResearchContext(input: {
     connected: false,
     activeRepo: null,
     verifiedBlock:
-      "VERIFIED: No repository attached. Answer from general software architecture knowledge, user messages, and attachments only. Do not invent repo-specific facts.",
+      "No repo attached for this message. Use general engineering knowledge; don't make up project-specific facts.",
     narrativeBlock: "",
     systemScopeBlock:
-      "No GitHub repo added to this blueprint. If the user needs repo-specific answers, suggest adding a GitHub repo from the + menu.",
+      "General chat. If they ask about their specific app or repo, they can attach a project from Projects in the composer.",
     infraBlock: null,
     attachmentBlock: input.attachmentBlock ?? null,
     correctionsBlock: input.corrections?.length
       ? `USER CORRECTIONS (override all assumptions):\n${input.corrections.map((line) => `- ${line}`).join("\n")}`
       : null,
   }
+}
+
+function repoSummaryDetailLines(summary: string) {
+  return summary
+    .split("\n")
+    .filter((line) =>
+      /^(Top-level|Recent commits|Language|Files|Branch):/.test(line)
+    )
 }
 
 export async function getBlueprintResearchContext(input: {
@@ -83,12 +91,17 @@ export async function getBlueprintResearchContext(input: {
   const repo = await getBlueprintRepoContext(false)
   const overview = await getOverviewRepoContext()
 
+  if (!repo.activeRepo) {
+    return emptyResearchContext(input)
+  }
+
   const verifiedLines = [
     repo.activeRepo ? `Repository: ${repo.activeRepo}` : null,
     repo.stack ? `Stack (package.json): ${repo.stack}` : null,
     repo.verifiedTechnologies?.length
       ? `Dependencies (package.json): ${repo.verifiedTechnologies.join(", ")}`
       : null,
+    ...repoSummaryDetailLines(repo.summary),
   ].filter(Boolean)
 
   const narrativeMatch = repo.summary

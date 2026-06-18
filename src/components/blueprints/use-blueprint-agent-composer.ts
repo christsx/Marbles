@@ -9,20 +9,28 @@ import {
   useBlueprintSelectedModel,
 } from "@/components/blueprints/use-blueprint-selected-model"
 import { useBlueprintProjectContext } from "@/components/blueprints/use-blueprint-project-context"
+import { useWorkspaceDefaultRepo } from "@/components/blueprints/use-workspace-active-repo"
 import { isModelAvailable } from "@/lib/ai/model-availability"
+import { resolveAttachmentOnlyPrompt } from "@/lib/blueprints/workflow-prompt"
+import { getStudioTemplate } from "@/lib/blueprints/studio-templates"
 import type { BlueprintProjectContext } from "@/lib/blueprints/project-context.types"
 
 type UseBlueprintAgentComposerOptions = {
   generating: boolean
+  activeTemplateId?: string | null
+  onApplyTemplate?: (templateId: string) => void
   onSend: (
     message: string,
     context: BlueprintProjectContext,
-    modelId: string
+    modelId: string,
+    options?: { workflowId?: string | null }
   ) => void
 }
 
 export function useBlueprintAgentComposer({
   generating,
+  activeTemplateId = null,
+  onApplyTemplate,
   onSend,
 }: UseBlueprintAgentComposerOptions) {
   const [input, setInput] = React.useState("")
@@ -33,6 +41,7 @@ export function useBlueprintAgentComposer({
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const {
     projectContext,
+    setWorkspaceDefaultRepo,
     selectGitHubProject,
     attachFiles,
     removeRepo,
@@ -40,9 +49,16 @@ export function useBlueprintAgentComposer({
     clearAttachments,
   } = useBlueprintProjectContext()
 
+  useWorkspaceDefaultRepo(setWorkspaceDefaultRepo)
+
   const submit = React.useCallback(
     (value?: string) => {
-      const text = (value ?? input).trim()
+      const templateId = selectedWorkflow?.id ?? activeTemplateId
+      const text =
+        (value ?? input).trim() ||
+        (projectContext.attachments.length > 0
+          ? resolveAttachmentOnlyPrompt(templateId)
+          : "")
       if (
         (!text && projectContext.attachments.length === 0) ||
         generating
@@ -56,13 +72,16 @@ export function useBlueprintAgentComposer({
       }
 
       setModelNotice(null)
-      onSend(text, projectContext, modelId)
+      onSend(text, projectContext, modelId, {
+        workflowId: templateId ?? null,
+      })
       setInput("")
       setSelectedWorkflow(null)
       clearAttachments()
       if (textareaRef.current) textareaRef.current.style.height = ""
     },
     [
+      activeTemplateId,
       apiKeys,
       clearAttachments,
       generating,
@@ -70,7 +89,31 @@ export function useBlueprintAgentComposer({
       modelId,
       onSend,
       projectContext,
+      selectedWorkflow?.id,
     ]
+  )
+
+  const handleWorkflowSelect = React.useCallback(
+    (workflow: Workflow | null) => {
+      setSelectedWorkflow(workflow)
+
+      if (!workflow) {
+        return
+      }
+
+      const template = getStudioTemplate(workflow.id)
+
+      if (!template) {
+        return
+      }
+
+      if (!template.allowRepo) {
+        removeRepo()
+      }
+
+      onApplyTemplate?.(workflow.id)
+    },
+    [onApplyTemplate, removeRepo]
   )
 
   const composerProps: BlueprintComposerProps = {
@@ -95,7 +138,7 @@ export function useBlueprintAgentComposer({
     onRemoveAttachment: removeAttachment,
     onSelectGitHubProject: selectGitHubProject,
     selectedWorkflow,
-    onWorkflowSelect: setSelectedWorkflow,
+    onWorkflowSelect: handleWorkflowSelect,
   }
 
   return { composerProps, projectContext, modelId }

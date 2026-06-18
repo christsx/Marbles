@@ -7,6 +7,7 @@ import { isBlueprintGenerationConfigured } from "@/lib/ai/config"
 import { answerBlueprintQuestion } from "@/lib/blueprints/answer"
 import { generateBlueprintWithLlm } from "@/lib/blueprints/generate"
 import type { BlueprintDeliverableKind } from "@/lib/blueprints/intent"
+import type { BlueprintChatHistoryTurn } from "@/lib/blueprints/chat-history"
 import { nextBlueprintId } from "@/lib/blueprints"
 
 export type SaveBlueprintState = {
@@ -82,6 +83,10 @@ export async function answerBlueprintQuestionAction(input: {
   includeRepoContext?: boolean
   attachmentContext?: string | null
   modelId?: string | null
+  history?: BlueprintChatHistoryTurn[]
+  userFirstName?: string
+  isFirstTurn?: boolean
+  workflowId?: string | null
 }): Promise<AnswerBlueprintQuestionState> {
   const question = input.question.trim()
   const system = input.system.trim()
@@ -113,6 +118,10 @@ export async function answerBlueprintQuestionAction(input: {
       includeRepoContext: input.includeRepoContext,
       attachmentContext: input.attachmentContext,
       modelId: input.modelId,
+      history: input.history,
+      userFirstName: input.userFirstName,
+      isFirstTurn: input.isFirstTurn,
+      workflowId: input.workflowId,
     })
 
     return { status: "success", answer }

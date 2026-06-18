@@ -21,7 +21,7 @@ export function BlueprintAddDocMenu({
 }: BlueprintAddDocMenuProps) {
   return (
     <DropdownMenuContent
-      className="blueprint-add-doc-menu w-44"
+      className="blueprint-add-doc-menu"
       side="bottom"
       align="start"
     >

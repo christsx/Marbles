@@ -3,9 +3,14 @@
 import { BlueprintChatMessageView } from "@/components/blueprints/blueprint-chat-message"
 import type { BlueprintChatMessage } from "@/components/blueprints/blueprint-chat-message.types"
 
+export type BlueprintChatRetryMeta = {
+  workflowId?: string | null
+  attachmentContext?: string | null
+}
+
 type BlueprintChatTurnListProps = {
   messages: BlueprintChatMessage[]
-  onRetry?: (prompt: string) => void
+  onRetry?: (prompt: string, meta?: BlueprintChatRetryMeta) => void
 }
 
 export function BlueprintChatTurnList({
@@ -16,21 +21,29 @@ export function BlueprintChatTurnList({
 
   return (
     <div className="blueprint-chat-turns">
-      {turns.map((turn, index) => (
-        <div key={turn.key} className="blueprint-chat-turn">
-          {turn.user ? (
-            <BlueprintChatMessageView message={turn.user} onRetry={onRetry} />
-          ) : null}
-          {turn.assistant ? (
-            <BlueprintChatMessageView
-              message={turn.assistant}
-              retryPrompt={turn.user?.content}
-              isLatest={index === turns.length - 1}
-              onRetry={onRetry}
-            />
-          ) : null}
-        </div>
-      ))}
+      {turns.map((turn, index) => {
+        const retryMeta: BlueprintChatRetryMeta = {
+          workflowId: turn.user?.workflowId,
+          attachmentContext: turn.user?.attachmentContext,
+        }
+
+        return (
+          <div key={turn.key} className="blueprint-chat-turn">
+            {turn.user ? (
+              <BlueprintChatMessageView message={turn.user} onRetry={onRetry} />
+            ) : null}
+            {turn.assistant ? (
+              <BlueprintChatMessageView
+                message={turn.assistant}
+                retryPrompt={turn.user?.content}
+                retryMeta={retryMeta}
+                isLatest={index === turns.length - 1}
+                onRetry={onRetry}
+              />
+            ) : null}
+          </div>
+        )
+      })}
     </div>
   )
 }

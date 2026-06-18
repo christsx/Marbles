@@ -1,11 +1,18 @@
+import {
+  truncateAttachmentText,
+  ATTACHMENT_TEXT_PER_FILE,
+} from "@/lib/blueprints/attachment-limits"
+import { formatAttachmentContextBlock } from "@/lib/blueprints/format-attachment-context"
 import type { BlueprintAttachment } from "@/lib/blueprints/project-context.types"
 
 const TEXT_TYPES = new Set([
   "text/plain",
   "text/markdown",
+  "text/csv",
   "application/json",
   "text/yaml",
   "text/x-yaml",
+  "text/html",
 ])
 
 function isTextLike(file: File) {
@@ -13,17 +20,12 @@ function isTextLike(file: File) {
     return true
   }
 
-  return /\.(md|markdown|txt|json|ya?ml|ts|tsx|js|jsx|py|sql)$/i.test(file.name)
+  return /\.(md|markdown|txt|json|ya?ml|ts|tsx|js|jsx|py|sql|html?|csv)$/i.test(
+    file.name
+  )
 }
 
-function truncate(text: string, max: number) {
-  if (text.length <= max) {
-    return text
-  }
-
-  return `${text.slice(0, max - 1)}…`
-}
-
+/** Client fallback when the extract API is unavailable. Text-like files only. */
 export async function buildAttachmentContextBlock(
   attachments: BlueprintAttachment[]
 ): Promise<string | null> {
@@ -31,26 +33,31 @@ export async function buildAttachmentContextBlock(
     return null
   }
 
-  const parts: string[] = []
+  const parts = await Promise.all(
+    attachments.map(async (attachment) => {
+      if (!isTextLike(attachment.file)) {
+        return {
+          label: attachment.label,
+          text: null,
+          note: `${attachment.file.type || "binary"} needs server extraction (PDF/DOCX)`,
+        }
+      }
 
-  for (const attachment of attachments) {
-    if (isTextLike(attachment.file)) {
       try {
         const raw = await attachment.file.text()
-        parts.push(
-          `File: ${attachment.label}\n${truncate(raw.trim(), 2400)}`
-        )
-        continue
+        return {
+          label: attachment.label,
+          text: truncateAttachmentText(raw.trim(), ATTACHMENT_TEXT_PER_FILE),
+        }
       } catch {
-        parts.push(`File: ${attachment.label} (could not read contents)`)
-        continue
+        return {
+          label: attachment.label,
+          text: null,
+          note: "could not read contents",
+        }
       }
-    }
+    })
+  )
 
-    parts.push(
-      `File: ${attachment.label} (${attachment.file.type || "binary"} — contents not inlined)`
-    )
-  }
-
-  return `USER ATTACHMENTS (use for answers and document edits when relevant):\n${parts.join("\n\n")}`
+  return formatAttachmentContextBlock(parts)
 }

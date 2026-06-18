@@ -44,7 +44,12 @@ export function BlueprintDocPreview({
 
   return (
     <article className="blueprint-doc-article mx-auto max-w-3xl px-6 py-8 md:px-10">
-      <BlueprintDocument key={contentKey} content={{ blocks }} />
+      {title.trim() ? (
+        <h1 className="font-heading mb-6 text-2xl font-semibold tracking-tight text-foreground">
+          {title.trim()}
+        </h1>
+      ) : null}
+      <BlueprintDocument key={contentKey} content={{ blocks }} className="gap-6" />
     </article>
   )
 }

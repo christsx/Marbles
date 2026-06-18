@@ -4,12 +4,15 @@ import {
   getGroqStreamDeltaContent,
 } from "@/lib/ai/groq-chat-options"
 import { isGroqModelId, resolveModelRequest } from "@/lib/ai/model-catalog"
+import type { BlueprintChatHistoryTurn } from "@/lib/blueprints/chat-history"
+import { buildGroqChatMessages } from "@/lib/blueprints/build-chat-request"
 
 type StreamTextOptions = {
   system: string
   prompt: string
   maxTokens?: number
   modelId?: string | null
+  history?: BlueprintChatHistoryTurn[]
 }
 
 export async function* streamText(
@@ -27,6 +30,7 @@ async function* streamGroqText({
   prompt,
   maxTokens = 1200,
   modelId,
+  history = [],
 }: StreamTextOptions): AsyncGenerator<string, void, unknown> {
   const apiKey = getGroqApiKey()
 
@@ -45,16 +49,10 @@ async function* streamGroqText({
     body: JSON.stringify({
       model: model.apiModel,
       max_tokens: maxTokens,
-      temperature: 0.4,
+      temperature: 0.55,
       stream: true,
       ...getGroqModelOptions(model.apiModel),
-      messages: [
-        {
-          role: "system",
-          content: `${system}\n\nPlain text only. No JSON. /no_think`,
-        },
-        { role: "user", content: prompt },
-      ],
+      messages: buildGroqChatMessages({ system, prompt, history, format: "text" }),
     }),
   })
 

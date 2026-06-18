@@ -7,4 +7,6 @@ export type BlueprintChatMessage = {
   startedAt?: number
   thoughtSeconds?: number
   userPrompt?: string
+  workflowId?: string | null
+  attachmentContext?: string | null
 }

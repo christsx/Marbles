@@ -5,7 +5,6 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 export type MikeIconProps = {
-  spin?: boolean
   done?: boolean
   error?: boolean
   mike?: boolean
@@ -15,7 +14,6 @@ export type MikeIconProps = {
 }
 
 export function MikeIcon({
-  spin = false,
   done = false,
   error = false,
   mike = false,
@@ -32,15 +30,8 @@ export function MikeIcon({
 
   return (
     <span
-      className={cn(
-        "inline-block shrink-0 text-foreground",
-        spin && "animate-[spin_3s_linear_infinite]",
-        className
-      )}
-      style={{
-        animationPlayState: spin ? "running" : "paused",
-        ...style,
-      }}
+      className={cn("inline-block shrink-0 text-foreground", className)}
+      style={style}
     >
       <svg
         width={width}
@@ -49,28 +40,21 @@ export function MikeIcon({
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden
-        style={{ display: "block" }}
+        className="block"
       >
-        <rect y="37" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.6" x="7" y="37" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.32" x="14" y="37" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.07" x="21" y="37" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.6" y="30" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.32" x="7" y="30" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.07" x="7" y="23" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.07" x="14" y="30" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.32" y="23" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.07" y="16" width="7" height="7" fill="currentColor" />
-        <rect x="33" y="4" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.6" x="33" y="11" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.32" x="26" y="11" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.07" x="19" y="11" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.32" x="33" y="18" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.07" x="26" y="18" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.07" x="33" y="25" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.6" x="26" y="4" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.32" x="19" y="4" width="7" height="7" fill="currentColor" />
-        <rect opacity="0.07" x="12" y="4" width="7" height="7" fill="currentColor" />
+        <g fill="currentColor">
+          <path d="m0 4h10v10h-10z" />
+          <path d="m20 4h10v10h-10z" opacity=".6" />
+          <path d="m10 14h10v10h-10z" opacity=".6" />
+          <path d="m20 14h10v10h-10z" opacity=".45" />
+          <path d="m30 14h10v10h-10z" opacity=".3" />
+          <path d="m0 24h10v10h-10z" opacity=".6" />
+          <path d="m10 24h10v10h-10z" opacity=".45" />
+          <path d="m20 24h10v10h-10z" opacity=".3" />
+          <path d="m30 24h10v10h-10z" opacity=".15" />
+          <path d="m10 34h10v10h-10z" opacity=".3" />
+          <path d="m20 34h10v10h-10z" opacity=".15" />
+        </g>
       </svg>
     </span>
   )

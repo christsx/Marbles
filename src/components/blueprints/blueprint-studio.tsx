@@ -12,6 +12,8 @@ import { useBlueprintStudioChat } from "@/components/blueprints/use-blueprint-st
 import type { BlueprintEditorHandle } from "@/components/blueprints/blueprint-editor"
 import { emptyBlueprint } from "@/lib/blueprint-editor"
 import { BLUEPRINT_GENERAL_SYSTEM } from "@/lib/blueprints"
+import { getStudioTemplateOpenState } from "@/lib/blueprints/apply-studio-template"
+import { firstPendingSectionId } from "@/lib/blueprints/template-document"
 import { cn } from "@/lib/utils"
 
 const initialState: SaveBlueprintState = { status: "idle", message: "" }
@@ -40,14 +42,33 @@ export function BlueprintStudio({
   )
   const [hasDocument, setHasDocument] = React.useState(isEditing)
   const [contentKey, setContentKey] = React.useState(0)
+  const [activeTemplateId, setActiveTemplateId] = React.useState<string | null>(null)
+  const [fillingSectionId, setFillingSectionId] = React.useState<string | null>(null)
   const [studioError, setStudioError] = React.useState<string | null>(null)
   const [state, formAction, isPending] = useActionState(saveBlueprint, initialState)
+
+  const beginTemplateFill = React.useCallback(
+    (doc: OutputData | null, templateId: string | null) => {
+      setFillingSectionId(
+        doc && templateId ? firstPendingSectionId(doc, templateId) : null
+      )
+    },
+    []
+  )
+
+  const finishTemplateFill = React.useCallback(() => {
+    setFillingSectionId(null)
+  }, [])
 
   const { messages, setMessages, generating, docGenerating, handleSend, handleRetry } =
     useBlueprintStudioChat({
       title,
       system,
       hasDocument,
+      content,
+      activeTemplateId,
+      beginTemplateFill,
+      finishTemplateFill,
       editorRef,
       setTitle,
       setContent,
@@ -57,6 +78,13 @@ export function BlueprintStudio({
     })
 
   React.useEffect(() => {
+    if (docGenerating) {
+      setActiveTemplateId(null)
+      setFillingSectionId(null)
+    }
+  }, [docGenerating])
+
+  React.useEffect(() => {
     if (!isEditing) return
 
     setMessages([
@@ -64,14 +92,41 @@ export function BlueprintStudio({
         id: "loaded-assistant",
         role: "assistant",
         content:
-          'Blueprint loaded. Chat is general by default — use + to add files or a GitHub repo when you want project context.',
+          'Blueprint loaded. Chat is general by default — attach a project from Projects when you want repo-specific answers (defaults to your workspace repo).',
       },
     ])
   }, [isEditing, setMessages])
 
+  const applyStudioTemplate = React.useCallback(
+    (templateId: string) => {
+      const openState = getStudioTemplateOpenState(templateId)
+      if (!openState) {
+        return
+      }
+
+      setActiveTemplateId(templateId)
+      setFillingSectionId(null)
+      setTitle(openState.title)
+      setContent(openState.content)
+      setHasDocument(true)
+      setContentKey((key) => key + 1)
+      setStudioError(null)
+      setMessages((previous) => [
+        ...previous,
+        {
+          id: `template-open-${Date.now()}`,
+          role: "assistant",
+          content: openState.assistantHint,
+        },
+      ])
+    },
+    [setMessages]
+  )
+
   const errorMessage =
     studioError ?? (state.status === "error" ? state.message : null)
   const showDocPanel = hasDocument || docGenerating
+  const panelMode = activeTemplateId ? "template" : "blueprint"
 
   const handleSave = async () => {
     setStudioError(null)
@@ -111,6 +166,8 @@ export function BlueprintStudio({
             generating={generating}
             onSend={handleSend}
             onRetry={handleRetry}
+            onApplyTemplate={applyStudioTemplate}
+            activeTemplateId={activeTemplateId}
             className={cn(showDocPanel && "lg:max-w-[min(52%,720px)]")}
           />
 
@@ -121,8 +178,9 @@ export function BlueprintStudio({
               contentKey={contentKey}
               hasDocument={hasDocument}
               generating={docGenerating}
+              panelMode={panelMode}
               editorRef={editorRef}
-              onSave={handleSave}
+              onSave={panelMode === "blueprint" ? handleSave : undefined}
               saving={isPending}
               saveDisabled={!hasDocument || generating}
             />

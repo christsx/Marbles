@@ -6,13 +6,13 @@ type AppLogomarkProps = {
   className?: string
 }
 
-/** Core hex logomark — height-driven; width follows 42:48 aspect. */
+/** Pixel logomark — height-driven; width follows 40:48 aspect. */
 export function AppLogomark({
   size = 24,
   spin = false,
   className,
 }: AppLogomarkProps) {
-  const width = (size * 42) / 48
+  const width = (size * 40) / 48
 
   return (
     <span
@@ -25,18 +25,26 @@ export function AppLogomark({
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 42 48"
+        viewBox="0 0 40 48"
         width={width}
         height={size}
-        fill="currentColor"
+        fill="none"
         aria-hidden
         className="block"
       >
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="m15.2286 4.99951c-3.2154 0-6.18655 1.71539-7.79425 4.5l-5.7735 9.99999c-1.6076941 2.7846-1.607697 6.2154 0 9l5.7735 10c1.6077 2.7846 4.57885 4.5 7.79425 4.5h11.547c3.2154 0 6.1865-1.7154 7.7942-4.5l5.7735-10c1.6077-2.7846 1.6077-6.2154 0-9l-5.7735-9.99999c-1.6077-2.78461-4.5788-4.5-7.7942-4.5zm11.547 5.99999h-7.2169c-1.1547 0-1.8762 1.2499-1.298 2.2494 1.784 3.0838 3.5722 6.1653 5.3536 9.2506.5359.9282.5359 2.0718 0 3-1.7814 3.0854-3.5696 6.1668-5.3536 9.2506-.5782.9995.1433 2.2494 1.298 2.2494h7.2169c1.0718 0 2.0622-.5718 2.5981-1.5l5.7735-10c.5359-.9282.5359-2.0718 0-3l-5.7735-10c-.5359-.9282-1.5263-1.5-2.5981-1.5z"
-        />
+        <g fill="currentColor">
+          <path d="m0 4h10v10h-10z" />
+          <path d="m20 4h10v10h-10z" opacity=".6" />
+          <path d="m10 14h10v10h-10z" opacity=".6" />
+          <path d="m20 14h10v10h-10z" opacity=".45" />
+          <path d="m30 14h10v10h-10z" opacity=".3" />
+          <path d="m0 24h10v10h-10z" opacity=".6" />
+          <path d="m10 24h10v10h-10z" opacity=".45" />
+          <path d="m20 24h10v10h-10z" opacity=".3" />
+          <path d="m30 24h10v10h-10z" opacity=".15" />
+          <path d="m10 34h10v10h-10z" opacity=".3" />
+          <path d="m20 34h10v10h-10z" opacity=".15" />
+        </g>
       </svg>
     </span>
   )

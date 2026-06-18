@@ -8,6 +8,7 @@ import { BlueprintComposer } from "@/components/blueprints/blueprint-composer"
 import { BlueprintInitialView } from "@/components/blueprints/blueprint-initial-view"
 import type { BlueprintChatMessage } from "@/components/blueprints/blueprint-chat-message.types"
 import { useBlueprintAgentComposer } from "@/components/blueprints/use-blueprint-agent-composer"
+import { useBlueprintChatScroll } from "@/components/blueprints/use-blueprint-chat-scroll"
 import type { BlueprintProjectContext } from "@/lib/blueprints/project-context.types"
 import { canScrollBlueprintChat } from "@/lib/blueprints/chat-scroll"
 import { cn } from "@/lib/utils"
@@ -20,13 +21,17 @@ type BlueprintAgentChatProps = {
   onSend: (
     message: string,
     context: BlueprintProjectContext,
-    modelId: string
+    modelId: string,
+    options?: { userFirstName?: string; workflowId?: string | null }
   ) => void
   onRetry?: (
     message: string,
     context: BlueprintProjectContext,
-    modelId: string
+    modelId: string,
+    options?: { userFirstName?: string; workflowId?: string | null; attachmentContext?: string | null }
   ) => void
+  onApplyTemplate?: (templateId: string) => void
+  activeTemplateId?: string | null
   className?: string
 }
 
@@ -35,28 +40,39 @@ export function BlueprintAgentChat({
   generating,
   onSend,
   onRetry,
+  onApplyTemplate,
+  activeTemplateId = null,
   className,
 }: BlueprintAgentChatProps) {
   const { user, isLoaded } = useUser()
   const scrollRef = React.useRef<HTMLDivElement>(null)
-  const { composerProps, projectContext, modelId } = useBlueprintAgentComposer({
-    generating,
-    onSend,
-  })
-
   const firstName =
     user?.firstName ??
     user?.fullName?.split(/\s+/)[0] ??
     user?.username ??
-    "there"
+    null
+  const greetingName = firstName && firstName !== "there" ? firstName : null
+  const displayName = greetingName ?? "there"
+  const { composerProps, projectContext, modelId } = useBlueprintAgentComposer({
+    generating,
+    activeTemplateId,
+    onApplyTemplate,
+    onSend: (message, context, modelId, sendOptions) =>
+      onSend(message, context, modelId, {
+        userFirstName: greetingName ?? undefined,
+        workflowId: sendOptions?.workflowId ?? null,
+      }),
+  })
 
   const isLanding = messages.length === 0
   const canScrollChat = canScrollBlueprintChat(messages, isLanding)
+  const streamTail = messages.at(-1)?.content ?? ""
 
-  React.useEffect(() => {
-    if (!canScrollChat || !scrollRef.current) return
-    scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-  }, [messages, generating, canScrollChat])
+  useBlueprintChatScroll(
+    scrollRef,
+    [messages.length, streamTail, generating],
+    canScrollChat
+  )
 
   return (
     <main
@@ -68,7 +84,7 @@ export function BlueprintAgentChat({
     >
       {isLanding ? (
         <BlueprintInitialView
-          username={firstName}
+          username={displayName}
           ready={isLoaded}
           composerProps={composerProps}
         />
@@ -85,7 +101,12 @@ export function BlueprintAgentChat({
               messages={messages}
               onRetry={
                 onRetry
-                  ? (prompt) => onRetry(prompt, projectContext, modelId)
+                  ? (prompt, meta) =>
+                      onRetry(prompt, projectContext, modelId, {
+                        userFirstName: greetingName ?? undefined,
+                        workflowId: meta?.workflowId,
+                        attachmentContext: meta?.attachmentContext,
+                      })
                   : undefined
               }
             />

@@ -1,10 +1,11 @@
-import { buildAttachmentContextBlock } from "@/lib/blueprints/attachment-context"
+import type { BlueprintChatHistoryTurn } from "@/lib/blueprints/chat-history"
+import { historyToGroqMessages } from "@/lib/blueprints/chat-history"
 import type { BlueprintDeliverableKind } from "@/lib/blueprints/intent"
 import { detectQueryFocus } from "@/lib/blueprints/query-focus"
 import { getBlueprintResearchContext } from "@/lib/blueprints/research-context"
 import {
-  BLUEPRINT_RESEARCH_SYSTEM_PROMPT,
   buildBlueprintResearchUserPrompt,
+  buildBlueprintSystemPrompt,
 } from "@/lib/blueprints/research-prompt"
 
 export type BlueprintChatRequestInput = {
@@ -16,6 +17,10 @@ export type BlueprintChatRequestInput = {
   corrections?: string[]
   includeRepoContext?: boolean
   attachmentContext?: string | null
+  history?: BlueprintChatHistoryTurn[]
+  userFirstName?: string
+  isFirstTurn?: boolean
+  workflowId?: string | null
 }
 
 export async function buildBlueprintChatRequest(input: BlueprintChatRequestInput) {
@@ -30,8 +35,10 @@ export async function buildBlueprintChatRequest(input: BlueprintChatRequestInput
     attachmentBlock: input.attachmentContext ?? null,
   })
 
+  const hasAttachments = Boolean(input.attachmentContext?.trim())
+
   return {
-    system: BLUEPRINT_RESEARCH_SYSTEM_PROMPT,
+    system: buildBlueprintSystemPrompt(research),
     prompt: buildBlueprintResearchUserPrompt({
       question: input.question,
       system: input.system,
@@ -39,8 +46,44 @@ export async function buildBlueprintChatRequest(input: BlueprintChatRequestInput
       hasDocument: input.hasDocument,
       research,
       deliverable,
+      userFirstName: input.userFirstName,
+      isFirstTurn: input.isFirstTurn,
+      workflowId: input.workflowId,
     }),
-    maxTokens: deliverable ? 2200 : focus.wantsDiagram ? 1800 : focus.infra ? 1600 : 1200,
+    history: input.history ?? [],
+    maxTokens: hasAttachments
+      ? 2600
+      : deliverable
+        ? 2200
+        : focus.wantsCodebaseOverview
+          ? 2200
+          : focus.wantsDiagram
+            ? 1800
+            : focus.infra
+              ? 1600
+              : 1200,
     deliverable,
   }
+}
+
+export function buildGroqChatMessages(input: {
+  system: string
+  prompt: string
+  history?: BlueprintChatHistoryTurn[]
+  format?: "json" | "text"
+}) {
+  const format = input.format ?? "text"
+  const systemSuffix =
+    format === "json"
+      ? "JSON only. No fences. /no_think"
+      : "Reply in plain text. Write naturally, like chat. No JSON. /no_think"
+
+  return [
+    {
+      role: "system" as const,
+      content: `${input.system}\n\n${systemSuffix}`,
+    },
+    ...historyToGroqMessages(input.history ?? []),
+    { role: "user" as const, content: input.prompt },
+  ]
 }

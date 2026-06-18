@@ -92,6 +92,8 @@ export function BlueprintComposer({
             selectedWorkflow={selectedWorkflow}
             onAttachFiles={onAttachFiles}
             onSelectGitHubProject={onSelectGitHubProject}
+            activeRepo={projectContext.activeRepo}
+            workspaceDefaultRepo={projectContext.workspaceDefaultRepo}
             onWorkflowSelect={onWorkflowSelect ?? (() => {})}
           />
           <div className="blueprint-composer-controls-right">

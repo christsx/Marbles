@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   transpilePackages: ["mermaid"],
+  serverExternalPackages: ["pdf-parse", "pdfjs-dist"],
   experimental: {
     staleTimes: {
       dynamic: 30,

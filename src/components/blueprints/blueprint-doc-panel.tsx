@@ -21,6 +21,8 @@ type BlueprintDocPanelProps = {
   contentKey: number
   hasDocument: boolean
   generating: boolean
+  panelMode?: "blueprint" | "template"
+  startInEditMode?: boolean
   editorRef: React.RefObject<BlueprintEditorHandle | null>
   onSave?: () => void
   saving?: boolean
@@ -34,6 +36,8 @@ export function BlueprintDocPanel({
   contentKey,
   hasDocument,
   generating,
+  panelMode = "blueprint",
+  startInEditMode = false,
   editorRef,
   onSave,
   saving = false,
@@ -41,12 +45,13 @@ export function BlueprintDocPanel({
   className,
 }: BlueprintDocPanelProps) {
   const [editing, setEditing] = React.useState(false)
+  const isTemplate = panelMode === "template"
 
   React.useEffect(() => {
-    if (hasDocument) {
-      setEditing(false)
+    if (hasDocument && !isTemplate) {
+      setEditing(startInEditMode)
     }
-  }, [hasDocument, contentKey])
+  }, [hasDocument, contentKey, isTemplate, startInEditMode])
 
   return (
     <section
@@ -55,10 +60,18 @@ export function BlueprintDocPanel({
         className
       )}
     >
-      {generating ? (
+      {generating && !isTemplate ? (
         <BlueprintDocLoadingState />
       ) : !hasDocument || !content ? (
         <BlueprintDocEmptyState />
+      ) : isTemplate ? (
+        <div className="blueprint-doc-surface blueprint-doc-surface-read relative min-h-0 flex-1 overflow-y-auto">
+          <BlueprintDocPreview
+            content={content}
+            title={title}
+            contentKey={contentKey}
+          />
+        </div>
       ) : editing ? (
         <div className="blueprint-doc-surface blueprint-doc-surface-editing flex min-h-0 flex-1 flex-col overflow-hidden">
           <BlueprintDocToolbar

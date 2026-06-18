@@ -65,7 +65,7 @@ export function BlueprintModelToggle({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="blueprint-model-menu w-56"
+        className="blueprint-model-menu"
         side="top"
         align="end"
       >

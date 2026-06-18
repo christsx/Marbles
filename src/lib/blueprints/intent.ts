@@ -116,32 +116,38 @@ function isArc42BlueprintRequest(text: string) {
   ].some((pattern) => pattern.test(lower))
 }
 
+import type { QueryFocus } from "@/lib/blueprints/query-focus"
+
 export function getIntentAssistantHint(
   intent: BlueprintMessageIntent,
   deliverable?: BlueprintDeliverableKind,
-  wantsDiagram = false
+  focus?: Pick<QueryFocus, "wantsDiagram" | "wantsCodebaseOverview" | "wantsExplicitDiagram">
 ) {
   if (intent === "question") {
-    if (wantsDiagram) {
-      return "Drafting architecture diagram…"
+    if (focus?.wantsCodebaseOverview) {
+      return "Reading your repo…"
+    }
+
+    if (focus?.wantsExplicitDiagram || focus?.wantsDiagram) {
+      return "Sketching a diagram…"
     }
 
     if (deliverable === "sow") {
-      return "Drafting scope of work from repository context…"
+      return "Drafting scope…"
     }
 
     if (deliverable === "prd") {
-      return "Drafting product requirements from repository context…"
+      return "Drafting requirements…"
     }
 
     if (deliverable === "spec") {
-      return "Drafting spec from repository context…"
+      return "Drafting spec…"
     }
 
-    return "Researching repository context…"
+    return "Thinking…"
   }
 
-  return "Generating blueprint from repository context…"
+  return "Generating blueprint…"
 }
 
 export function getIntentSuccessMessage(

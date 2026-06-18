@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
@@ -29,10 +31,12 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.20.0",
+    "mammoth": "^1.12.0",
     "mermaid": "^11.15.0",
     "motion": "^12.40.0",
     "next": "^16.2.9",
     "next-themes": "^0.4.6",
+    "pdf-parse": "^2.4.5",
     "postgres": "^3.4.9",
     "radix-ui": "^1.6.0",
     "react": "19.2.4",
@@ -51,6 +55,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.9"
   }
 }

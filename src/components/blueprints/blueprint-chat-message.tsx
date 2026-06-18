@@ -1,24 +1,27 @@
 "use client"
 
 import { BlueprintChatActions } from "@/components/blueprints/blueprint-chat-actions"
-import { BlueprintChatMarkdown } from "@/components/blueprints/blueprint-chat-markdown"
+import { BlueprintChatRichContent } from "@/components/blueprints/blueprint-chat-rich-content"
 import {
   BlueprintChatDocPendingBody,
   BlueprintChatThoughtLine,
 } from "@/components/blueprints/blueprint-chat-thought"
 import type { BlueprintChatMessage } from "@/components/blueprints/blueprint-chat-message.types"
+import type { BlueprintChatRetryMeta } from "@/components/blueprints/blueprint-chat-turn-list"
 import { cn } from "@/lib/utils"
 
 type BlueprintChatMessageViewProps = {
   message: BlueprintChatMessage
   retryPrompt?: string
+  retryMeta?: BlueprintChatRetryMeta
   isLatest?: boolean
-  onRetry?: (prompt: string) => void
+  onRetry?: (prompt: string, meta?: BlueprintChatRetryMeta) => void
 }
 
 export function BlueprintChatMessageView({
   message,
   retryPrompt,
+  retryMeta,
   isLatest = false,
   onRetry,
 }: BlueprintChatMessageViewProps) {
@@ -34,6 +37,7 @@ export function BlueprintChatMessageView({
     <AssistantMessage
       message={message}
       retryPrompt={retryPrompt}
+      retryMeta={retryMeta}
       isLatest={isLatest}
       onRetry={onRetry}
     />
@@ -43,6 +47,7 @@ export function BlueprintChatMessageView({
 function AssistantMessage({
   message,
   retryPrompt,
+  retryMeta,
   isLatest = false,
   onRetry,
 }: BlueprintChatMessageViewProps) {
@@ -51,19 +56,17 @@ function AssistantMessage({
     message.pending && message.streaming && Boolean(message.content)
   const isDocPending =
     message.pending && !message.streaming && Boolean(message.content)
-  const isComplete = !message.pending || Boolean(message.thoughtSeconds)
+  const isComplete = !message.pending
   const showActions =
-    isComplete &&
-    Boolean(message.content.trim()) &&
-    !isWaiting &&
-    !isDocPending
+    isComplete && Boolean(message.content.trim()) && !isDocPending
   const prompt = message.userPrompt ?? retryPrompt
 
   return (
     <div
       className={cn(
         "blueprint-chat-turn-assistant",
-        isLatest && "is-latest"
+        isLatest && "is-latest",
+        isStreaming && "is-streaming"
       )}
     >
       <BlueprintChatThoughtLine message={message} />
@@ -73,31 +76,26 @@ function AssistantMessage({
           (isWaiting || isDocPending) && "is-muted"
         )}
       >
-        {isStreaming ? <StreamingBody content={message.content} /> : null}
         {isDocPending ? (
           <BlueprintChatDocPendingBody content={message.content} />
-        ) : null}
-        {!message.pending ? (
-          <BlueprintChatMarkdown content={message.content} />
+        ) : isWaiting ? (
+          null
+        ) : isStreaming ? (
+          <BlueprintChatRichContent content={message.content} streaming />
+        ) : message.content ? (
+          <BlueprintChatRichContent content={message.content} />
         ) : null}
       </div>
       {showActions ? (
         <BlueprintChatActions
           content={message.content}
           onRetry={
-            prompt && onRetry ? () => onRetry(prompt) : undefined
+            prompt && onRetry
+              ? () => onRetry(prompt, retryMeta)
+              : undefined
           }
         />
       ) : null}
-    </div>
-  )
-}
-
-function StreamingBody({ content }: { content: string }) {
-  return (
-    <div className="blueprint-chat-stream whitespace-pre-wrap">
-      {content}
-      <span className="blueprint-chat-cursor" aria-hidden />
     </div>
   )
 }
