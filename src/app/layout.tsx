@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Forge",
-  description: "AI-native software factory — requirements to shipped code",
+  title: "Agency OS",
+  description: "The operating system for running an AI agency — pipeline, scoping, and delivery in one place.",
 };
 
 export default function RootLayout({

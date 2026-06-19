@@ -114,7 +114,7 @@ export function BlueprintAgentChat({
           <div className="blueprint-studio-composer-wrap shrink-0 px-4 pb-4 pt-2">
             <BlueprintComposer {...composerProps} />
             <p className="blueprint-chat-disclaimer">
-              Torse is AI and may get things wrong. Please verify important details.
+              Agency OS is AI and may get things wrong. Please verify important details.
             </p>
           </div>
         </>

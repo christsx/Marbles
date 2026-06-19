@@ -68,6 +68,21 @@ export function detectDeliverableKind(message: string): BlueprintDeliverableKind
   return null
 }
 
+export function isTranscriptionRequest(message: string): boolean {
+  const lower = message.toLowerCase()
+
+  return [
+    /\b(convert|turn|transform|change|export|save|make|give)\b.*\bmarkdown\b/,
+    /\b(convert|turn|transform|change|export|save)\b.*\.md\b/,
+    /\btranscribe\b/,
+    /\bmarkdown\b.*\b(file|format|version|copy|document)\b/,
+    /\bas markdown\b/,
+    /\bto markdown\b/,
+    /\binto markdown\b/,
+    /\bmarkdown format\b/,
+  ].some((pattern) => pattern.test(lower))
+}
+
 function isProseDeliverableRequest(text: string) {
   const lower = text.toLowerCase()
 

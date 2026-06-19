@@ -39,7 +39,7 @@ export default class BlueprintDiagramTool {
       variant: data?.variant ?? "flowchart",
       chart:
         data?.chart ??
-        "flowchart TB\n  Client[Client] --> API[Forge API]\n  API --> DB[(Database)]",
+        "flowchart TB\n  Client[Client] --> API[Agency OS API]\n  API --> DB[(Database)]",
     }
     this.chartSource = this.data.chart ?? ""
     this.readOnly = Boolean(readOnly)

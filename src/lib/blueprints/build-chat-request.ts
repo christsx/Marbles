@@ -1,6 +1,6 @@
 import type { BlueprintChatHistoryTurn } from "@/lib/blueprints/chat-history"
 import { historyToGroqMessages } from "@/lib/blueprints/chat-history"
-import type { BlueprintDeliverableKind } from "@/lib/blueprints/intent"
+import { isTranscriptionRequest, type BlueprintDeliverableKind } from "@/lib/blueprints/intent"
 import { detectQueryFocus } from "@/lib/blueprints/query-focus"
 import { getBlueprintResearchContext } from "@/lib/blueprints/research-context"
 import {
@@ -25,8 +25,10 @@ export type BlueprintChatRequestInput = {
 
 export async function buildBlueprintChatRequest(input: BlueprintChatRequestInput) {
   const focus = detectQueryFocus(input.question)
-  const deliverable =
-    input.deliverable ?? (focus.clientDeliverable ? ("sow" as const) : null)
+  const transcribe = isTranscriptionRequest(input.question)
+  const deliverable = transcribe
+    ? null
+    : input.deliverable ?? (focus.clientDeliverable ? ("sow" as const) : null)
   const research = await getBlueprintResearchContext({
     system: input.system,
     question: input.question,
@@ -46,22 +48,25 @@ export async function buildBlueprintChatRequest(input: BlueprintChatRequestInput
       hasDocument: input.hasDocument,
       research,
       deliverable,
+      transcribe,
       userFirstName: input.userFirstName,
       isFirstTurn: input.isFirstTurn,
       workflowId: input.workflowId,
     }),
     history: input.history ?? [],
-    maxTokens: hasAttachments
-      ? 2600
-      : deliverable
-        ? 2200
-        : focus.wantsCodebaseOverview
+    maxTokens: transcribe
+      ? 8000
+      : hasAttachments
+        ? 2600
+        : deliverable
           ? 2200
-          : focus.wantsDiagram
-            ? 1800
-            : focus.infra
-              ? 1600
-              : 1200,
+          : focus.wantsCodebaseOverview
+            ? 2200
+            : focus.wantsDiagram
+              ? 1800
+              : focus.infra
+                ? 1600
+                : 1200,
     deliverable,
   }
 }

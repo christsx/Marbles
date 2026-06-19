@@ -1,15 +1,7 @@
-import { auth } from "@clerk/nextjs/server"
+export {
+  getWorkspaceIdentity,
+  type WorkspaceIdentity,
+} from "@/lib/workspace-identity"
 
-export async function getPipedreamExternalUserId() {
-  const { userId, orgId } = await auth()
-
-  if (!userId) {
-    return null
-  }
-
-  return {
-    userId,
-    orgId,
-    externalUserId: orgId ? `org_${orgId}` : `user_${userId}`,
-  }
-}
+/** @deprecated Use getWorkspaceIdentity */
+export { getWorkspaceIdentity as getPipedreamExternalUserId } from "@/lib/workspace-identity"

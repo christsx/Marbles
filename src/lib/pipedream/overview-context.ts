@@ -4,7 +4,7 @@ import { unstable_cache } from "next/cache"
 import { isPipedreamConfigured } from "@/lib/pipedream/config"
 import { listConnectedAccounts } from "@/lib/pipedream/server"
 import type { PipedreamAccountSummary } from "@/lib/pipedream/types"
-import { getPipedreamExternalUserId } from "@/lib/pipedream/user"
+import { getWorkspaceIdentity } from "@/lib/workspace-identity"
 import { getActiveRepo, getTrackedRepos } from "@/lib/tracked-repos"
 
 const CONNECTED_ACCOUNTS_CACHE_SECONDS = 60
@@ -33,7 +33,7 @@ export type OverviewRepoContext = {
 
 export const getOverviewRepoContext = cache(
   async (): Promise<OverviewRepoContext | null> => {
-    const identity = await getPipedreamExternalUserId()
+    const identity = await getWorkspaceIdentity()
 
     if (!identity) {
       return null
@@ -58,7 +58,7 @@ export const getOverviewRepoContext = cache(
       account: accounts[0] ?? null,
       trackedRepos,
       activeRepo,
-      connected: accounts.length > 0,
+      connected: accounts.length > 0 || trackedRepos.length > 0,
     }
   }
 )

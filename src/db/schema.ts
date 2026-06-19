@@ -1,6 +1,7 @@
 import {
   boolean,
   integer,
+  jsonb,
   numeric,
   pgEnum,
   pgTable,
@@ -228,6 +229,94 @@ export const complianceViolations = pgTable("compliance_violations", {
   severity: complianceSeverityEnum("severity").notNull().default("warning"),
   resolved: boolean("resolved").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// Module 6: Blueprint Studio (AI-generated SOWs / PRDs / specs / architecture)
+// ---------------------------------------------------------------------------
+
+export const blueprintStatusEnum = pgEnum("blueprint_status", [
+  "draft",
+  "in_review",
+  "approved",
+  "archived",
+]);
+
+export const blueprintDeliverableKindEnum = pgEnum(
+  "blueprint_deliverable_kind",
+  ["sow", "prd", "spec"]
+);
+
+type BlueprintContent = { blocks: unknown[] };
+
+export const blueprints = pgTable("blueprints", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  opportunityId: uuid("opportunity_id").references(() => opportunities.id, {
+    onDelete: "set null",
+  }),
+  authorId: uuid("author_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  templateId: text("template_id"),
+  title: text("title").notNull(),
+  deliverableKind: blueprintDeliverableKindEnum("deliverable_kind"),
+  status: blueprintStatusEnum("status").notNull().default("draft"),
+  content: jsonb("content").$type<BlueprintContent>(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// Module 7: Delivery (work orders link a blueprint to trackable build tasks)
+// ---------------------------------------------------------------------------
+
+export const workOrderStatusEnum = pgEnum("work_order_status", [
+  "todo",
+  "in_progress",
+  "blocked",
+  "in_review",
+  "done",
+]);
+
+export const workOrderPriorityEnum = pgEnum("work_order_priority", [
+  "low",
+  "medium",
+  "high",
+]);
+
+export const workOrders = pgTable("work_orders", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  opportunityId: uuid("opportunity_id").references(() => opportunities.id, {
+    onDelete: "set null",
+  }),
+  blueprintId: uuid("blueprint_id").references(() => blueprints.id, {
+    onDelete: "set null",
+  }),
+  assigneeId: uuid("assignee_id").references(() => users.id, {
+    onDelete: "set null",
+  }),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: workOrderStatusEnum("status").notNull().default("todo"),
+  priority: workOrderPriorityEnum("priority").notNull().default("medium"),
+  dueDate: timestamp("due_date", { withTimezone: true }),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });

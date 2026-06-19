@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 
-import { getPipedreamExternalUserId } from "@/lib/pipedream/user"
+import { getWorkspaceIdentity } from "@/lib/workspace-identity"
 import {
   clearActiveRepo,
   clearTrackedRepos,
@@ -13,7 +13,7 @@ import {
 } from "@/lib/tracked-repos"
 
 export async function saveTrackedReposAction(repos: string[]) {
-  const identity = await getPipedreamExternalUserId()
+  const identity = await getWorkspaceIdentity()
 
   if (!identity) {
     return { ok: false as const, error: "Unauthorized" }
@@ -37,7 +37,7 @@ export async function saveTrackedReposAction(repos: string[]) {
 }
 
 export async function setActiveRepoAction(fullName: string) {
-  const identity = await getPipedreamExternalUserId()
+  const identity = await getWorkspaceIdentity()
 
   if (!identity) {
     return { ok: false as const, error: "Unauthorized" }
@@ -56,7 +56,7 @@ export async function setActiveRepoAction(fullName: string) {
 }
 
 export async function clearTrackedReposAction() {
-  const identity = await getPipedreamExternalUserId()
+  const identity = await getWorkspaceIdentity()
 
   if (!identity) {
     return { ok: false as const, error: "Unauthorized" }

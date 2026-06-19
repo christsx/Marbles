@@ -7,7 +7,7 @@ export default function IntegrationsPage() {
       <PageContainer>
         <PageHeader
           title="Integrations"
-          subtitle="Connect GitHub and choose a repository to track. Each workspace keeps its own connection."
+          subtitle="Track GitHub repositories for this workspace. Connect OAuth is off for now."
         />
         <RepoStatusCard mode="integrations" />
       </PageContainer>

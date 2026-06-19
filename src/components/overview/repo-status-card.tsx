@@ -1,16 +1,11 @@
-import { GitHubIntegrationPanel } from "@/components/github/github-integration-panel"
+import { GitHubRepoTracker } from "@/components/github/github-repo-tracker"
 import { GitHubRepoCard } from "@/components/github/github-repo-card"
-import { isPipedreamConfigured } from "@/lib/pipedream/config"
 import { getOverviewRepoContext } from "@/lib/pipedream/overview-context"
 import {
   getGithubRepoDetails,
-  listConnectedAccounts,
 } from "@/lib/pipedream/server"
-import type {
-  GitHubRepoDetails,
-  PipedreamAccountSummary,
-} from "@/lib/pipedream/types"
-import { getPipedreamExternalUserId } from "@/lib/pipedream/user"
+import type { GitHubRepoDetails } from "@/lib/pipedream/types"
+import { getWorkspaceIdentity } from "@/lib/workspace-identity"
 import { getActiveRepo, getTrackedRepos } from "@/lib/tracked-repos"
 import { withTimeout } from "@/lib/with-timeout"
 
@@ -22,33 +17,19 @@ type RepoStatusCardProps = {
 
 export async function RepoStatusCard({ mode = "overview" }: RepoStatusCardProps) {
   if (mode === "integrations") {
-    const identity = await getPipedreamExternalUserId()
+    const identity = await getWorkspaceIdentity()
 
     if (!identity) {
       return null
-    }
-
-    const configured = isPipedreamConfigured()
-    let accounts: PipedreamAccountSummary[] = []
-
-    if (configured) {
-      try {
-        accounts = await listConnectedAccounts(identity.externalUserId, "github")
-      } catch (error) {
-        console.error("Failed to load GitHub accounts:", error)
-      }
     }
 
     const trackedRepos = await getTrackedRepos(identity.externalUserId)
     const activeRepo = await getActiveRepo(identity.externalUserId, trackedRepos)
 
     return (
-      <GitHubIntegrationPanel
-        externalUserId={identity.externalUserId}
-        initialAccounts={accounts}
+      <GitHubRepoTracker
         initialTrackedRepos={trackedRepos}
         initialActiveRepo={activeRepo}
-        pipedreamConfigured={configured}
       />
     )
   }

@@ -48,6 +48,10 @@ export function getPublicPipedreamProjectEnvironment(): ProjectEnvironment {
 }
 
 export function isPipedreamConfigured() {
+  if (process.env.PIPEDREAM_CONNECT_ENABLED !== "true") {
+    return false
+  }
+
   const config = getPipedreamConfig()
 
   return Boolean(

@@ -68,8 +68,7 @@ async function resolveBlueprintRepoContext(
   context: Awaited<ReturnType<typeof getOverviewRepoContext>>,
   compact: boolean
 ): Promise<BlueprintRepoContext> {
-
-  if (!context?.activeRepo || !context.account || !context.configured) {
+  if (!context?.activeRepo) {
     return {
       connected: false,
       activeRepo: null,
@@ -79,17 +78,19 @@ async function resolveBlueprintRepoContext(
     }
   }
 
-  if (!isPipedreamConfigured()) {
+  const { externalUserId, account, activeRepo } = context
+  const canFetchLive =
+    Boolean(account) && context.configured && isPipedreamConfigured()
+
+  if (!canFetchLive) {
     return {
-      connected: false,
-      activeRepo: context.activeRepo,
+      connected: true,
+      activeRepo,
       summary: compact
-        ? `Repo: ${context.activeRepo} (offline)`
-        : "Pipedream not configured — infer from title/system only.",
+        ? `Repo: ${activeRepo} (tracked)`
+        : `Repository: ${activeRepo}\nTracked manually — live GitHub metadata unavailable without OAuth.`,
     }
   }
-
-  const { externalUserId, account, activeRepo } = context
 
   try {
     const [details, commits, rootPaths, packageJson, readme] = await Promise.all([

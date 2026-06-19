@@ -54,7 +54,7 @@ export function BlueprintProjectsMenu({
         <DropdownMenuItem asChild className="blueprint-add-doc-menu-item">
           <Link href="/dashboard/integrations" prefetch onClick={onClose}>
             <GitBranchIcon className="mr-2 size-4 text-muted-foreground" />
-            <span>Connect GitHub</span>
+            <span>Track a repository</span>
           </Link>
         </DropdownMenuItem>
       ) : repos.length === 0 ? (

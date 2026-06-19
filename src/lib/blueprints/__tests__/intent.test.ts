@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import {
   classifyBlueprintIntent,
   detectDeliverableKind,
+  isTranscriptionRequest,
   updatesDocumentPanel,
 } from "@/lib/blueprints/intent"
 
@@ -82,5 +83,25 @@ describe("updatesDocumentPanel", () => {
   it("opens panel only for arc42 updates", () => {
     expect(updatesDocumentPanel("update_document")).toBe(true)
     expect(updatesDocumentPanel("question")).toBe(false)
+  })
+})
+
+describe("isTranscriptionRequest", () => {
+  it("detects convert-to-markdown phrasings", () => {
+    expect(isTranscriptionRequest("Convert this PDF to markdown")).toBe(true)
+    expect(
+      isTranscriptionRequest("turn it into a markdown file please")
+    ).toBe(true)
+    expect(isTranscriptionRequest("transcribe the document")).toBe(true)
+    expect(isTranscriptionRequest("export as markdown")).toBe(true)
+    expect(isTranscriptionRequest("save as .md")).toBe(true)
+    expect(isTranscriptionRequest("give me a markdown version")).toBe(true)
+  })
+
+  it("returns false for non-transcription requests", () => {
+    expect(isTranscriptionRequest("summarize this document")).toBe(false)
+    expect(isTranscriptionRequest("what does this PDF say?")).toBe(false)
+    expect(isTranscriptionRequest("draft a SOW for the client")).toBe(false)
+    expect(isTranscriptionRequest("explain the architecture")).toBe(false)
   })
 })

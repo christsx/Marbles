@@ -5,7 +5,7 @@ import { buildWorkflowPromptBlock } from "@/lib/blueprints/workflow-prompt"
 import { getStudioTemplate } from "./studio-templates"
 import { buildTemplateSectionHeadingGuide } from "@/lib/blueprints/template-section-match"
 
-const ATLAS_PERSONA = `You are Torse, a senior engineer who explains things clearly, like a helpful colleague, not a template or a slide deck.`
+const ATLAS_PERSONA = `You are Agency OS, a senior solutions architect who helps scope and deliver client work — turning conversations, briefs, and repos into clear SOWs, PRDs, specs, and architecture blueprints. You explain things clearly, like a sharp colleague who has shipped real client engagements, not a template or a slide deck.`
 
 const VOICE = `Voice (always):
 Write the way a smart human would in chat: natural, direct, warm when appropriate.
@@ -17,10 +17,11 @@ Skip rigid section templates unless the user asked for a structured doc.
 Use bullets or a diagram only when they actually help, not by default.
 Do not end with "Let me know if…", "Suggested next steps", or a trailing question unless they asked what to do next.
 If they say no / nah / not now without a real question, acknowledge once in a line and stop. Don't keep prompting them.
-Off-topic or non-engineering requests: one neutral sentence that you focus on software/engineering, then stop. No lectures.`
+Self-description: if asked what you are or what you can do, you are Agency OS — a scoping and delivery architect for agencies. You turn client conversations, briefs, and repos into SOWs, PRDs, specs, and architecture blueprints. Never describe yourself as a general software-engineering chatbot or "an AI for software engineering topics."
+Off-topic or non-work requests: one neutral sentence that you steer back to scoping, delivering, or building software, then stop. No lectures.`
 
 const GENERAL_CHAT_RULES = `General chat (no repo attached):
-Answer their question straight. Software, AI, system design, architecture: use real-world judgment.
+Answer their question straight. Scoping, SOWs, PRDs, specs, software, AI, system design, architecture: use real-world agency judgment.
 Do not invent facts about their project. Do not push them to connect GitHub unless they asked about their own code or app.`
 
 const REPO_GROUNDING_RULES = `Repo attached:
@@ -51,6 +52,14 @@ const DELIVERABLE_INSTRUCTIONS: Record<
   spec: `They want a technical spec. Format as markdown with ## sections (Context, Architecture overview, APIs and data, Integrations, Non-functional requirements, Test expectations). Cite verified stack only when repo is attached.`,
 }
 
+export const TRANSCRIPTION_INSTRUCTION = `The user wants a FAITHFUL conversion of the attached document into Markdown. This is transcription, not authoring — NOT a SOW, NOT a PRD, NOT a summary, NOT reorganized. Rules:
+- Output EVERY section, in the original order. Do not drop, merge, reorder, or rename anything.
+- Preserve the original heading hierarchy as # / ## / ###.
+- Preserve ALL tables as Markdown tables. Preserve ALL lists, code blocks, and callouts.
+- Keep the original wording. Do not rewrite, synthesize, condense, or "improve".
+- Do not add intros, commentary, or "Here is the markdown". Start directly with the document's first heading and end at the document's real end.
+- If the document is long, keep going to the end without stopping early.`
+
 export function buildBlueprintResearchUserPrompt(input: {
   question: string
   system: string
@@ -61,6 +70,7 @@ export function buildBlueprintResearchUserPrompt(input: {
   userFirstName?: string
   isFirstTurn?: boolean
   workflowId?: string | null
+  transcribe?: boolean
 }) {
   const focus = detectQueryFocus(input.question)
   const repoAttached = input.research.connected
@@ -88,9 +98,12 @@ export function buildBlueprintResearchUserPrompt(input: {
     template?.category === "client" || template?.category === "marketing"
       ? "External or GTM template active. Do not reference GitHub, codebase, or internal architecture unless the user explicitly asks. Ground the answer in attachments and the user message."
       : null,
-    template && input.hasDocument && input.research.attachmentBlock
+    !input.transcribe &&
+    template &&
+    input.hasDocument &&
+    input.research.attachmentBlock
       ? `CRITICAL: A template document with example content is open on the right. The user attached source material. Replace the example sections with facts synthesized from the attachment. Reply with one brief sentence in chat, then a ## block for every template section you can fill. Use these exact headings:\n${buildTemplateSectionHeadingGuide(template)}\nFill all sections the attachment supports. Structured content must appear only under ## headings, not in the chat sentence.`
-      : template && input.hasDocument
+      : !input.transcribe && template && input.hasDocument
         ? "Template doc is open on the right. Reply with 1-2 short sentences in chat (acknowledge, ask what's missing), then ## Section blocks using exact template section titles for each section you can fill from the message or attachments. All structured content goes under ## headings only, not in the chat prose. Ignore any instruction to skip rigid section templates."
         : null,
     "",
@@ -101,11 +114,19 @@ export function buildBlueprintResearchUserPrompt(input: {
     input.research.narrativeBlock,
     input.research.infraBlock,
     input.research.correctionsBlock,
-    input.research.attachmentBlock
-      ? "The user attached file(s) below. Read them carefully and ground your answer in their contents. Do not paste the attachment back verbatim. Synthesize, reorganize, and add structure the source lacks. Reference the file name when citing specifics."
-      : null,
+    input.transcribe && input.research.attachmentBlock
+      ? TRANSCRIPTION_INSTRUCTION
+      : input.research.attachmentBlock
+        ? "The user attached file(s) below. Read them carefully and ground your answer in their contents. Do not paste the attachment back verbatim. Synthesize, reorganize, and add structure the source lacks. Reference the file name when citing specifics."
+        : null,
     input.research.attachmentBlock,
-    template && input.hasDocument ? null : input.deliverable ? DELIVERABLE_INSTRUCTIONS[input.deliverable] : null,
+    input.transcribe
+      ? null
+      : template && input.hasDocument
+        ? null
+        : input.deliverable
+          ? DELIVERABLE_INSTRUCTIONS[input.deliverable]
+          : null,
     isMinimal
       ? "Minimal message. Reply in one short sentence only. No greeting back, no follow-up question, no what's on your mind."
       : null,

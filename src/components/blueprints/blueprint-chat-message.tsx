@@ -89,6 +89,7 @@ function AssistantMessage({
       {showActions ? (
         <BlueprintChatActions
           content={message.content}
+          prompt={prompt}
           onRetry={
             prompt && onRetry
               ? () => onRetry(prompt, retryMeta)
