@@ -21,7 +21,7 @@ export function BlueprintInitialView({
           <BlueprintGreetingHeader username={username} ready={ready} />
           <BlueprintComposer {...composerProps} large />
           <p className="blueprint-chat-disclaimer blueprint-landing-disclaimer text-center">
-            Agency OS is AI and may get things wrong. Please verify important details.
+            Marbles is AI and may get things wrong. Please verify important details.
           </p>
         </div>
       </div>

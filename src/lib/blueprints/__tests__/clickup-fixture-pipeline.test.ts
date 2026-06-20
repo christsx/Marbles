@@ -59,7 +59,7 @@ describe("ClickUp automation brief fixture", () => {
 
   it("builds Groq messages with system and user roles", () => {
     const messages = buildGroqChatMessages({
-      system: "You are Agency OS.",
+      system: "You are Marbles.",
       prompt: "Summarize the doc",
       history: [{ role: "user", content: "Earlier question" }],
     })

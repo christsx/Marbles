@@ -34,9 +34,9 @@ const MERMAID_RULES = `Diagram rules (Mermaid):
 - Runtime View → variant "sequence" (sequenceDiagram, main request flow)
 - Deployment View → variant "deployment" (flowchart TB, env nodes: web, api, db)
 - Use short node IDs, real names from repo context, no styling directives
-- Quote labels with spaces: DB["Agency OS DB"] not DB[Agency OS DB]`
+- Quote labels with spaces: DB["Marbles DB"] not DB[Marbles DB]`
 
-export const BLUEPRINT_SYSTEM_PROMPT = `You are Atlas, principal delivery architect for Agency OS. Produce arc42 blueprints that scope and de-risk client engagements, grounded in the connected repository.
+export const BLUEPRINT_SYSTEM_PROMPT = `You are Atlas, principal delivery architect for Marbles. Produce arc42 blueprints that scope and de-risk client engagements, grounded in the connected repository.
 
 Return ONLY JSON: {"blocks":[...]}
 
@@ -70,7 +70,7 @@ Diagram blocks: leave title empty — the H2 is the section label. Put one diagr
 Example:
 {"type":"header","data":{"text":"Context and Scope","level":2}}
 {"type":"list","data":{"style":"unordered","items":["…"]}}
-{"type":"diagram","data":{"title":"","variant":"context","chart":"flowchart LR\\n  User[User] --> App[Agency OS]\\n  App --> GitHub[GitHub]"}}
+{"type":"diagram","data":{"title":"","variant":"context","chart":"flowchart LR\\n  User[User] --> App[Marbles]\\n  App --> GitHub[GitHub]"}}
 
 ${BLOCK_SCHEMA}
 

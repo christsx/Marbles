@@ -1,18 +1,23 @@
-# Agency OS
+# Marbles
 
-The operating system for running an AI agency — pipeline, scoping, and delivery in one place.
+**From conversation to contract.**
+*AI-native CPQ for service-based businesses.*
 
-> North star: turn every won conversation into a buildable blueprint, then ship and coach against it — with full visibility into pipeline, delivery, and margin.
+Marbles turns a messy client conversation into a scoped, priced statement of work in minutes — then converts the approved SOW into a contract and tracks delivery through to close. Built for services businesses that sell custom work, not SKUs: agencies, consultancies, dev shops, marketing firms, and professional services teams.
 
-## What it is
+> The hard part of services CPQ is "Configure" — figuring out what work the client actually needs. Product CPQ tools can't do it (no catalog to pick from). Marbles does it with AI, from the call, the brief, or the connected repo.
 
-Agency OS unifies the three things every AI/software agency stitches together by hand today:
+## How it works (the CPQ loop)
 
-1. **Pipeline** — opportunities, follow-up cadences, and priority scoring (sales)
-2. **Blueprints** — AI-generated SOWs, PRDs, specs, and arc42 architecture docs, grounded in a connected GitHub repo (scoping)
-3. **Coaching & QA** — call reviews and compliance checks against delivery (quality)
+```
+client brief  →  Configure          →  Quote       →  Contract   →  Deliver
+(opportunity)     (AI blueprint)        (SOW + price)  (signed)      (work orders)
+```
 
-The hero feature is the **Blueprint Studio**: hand it a sales conversation, intake notes, or an attached brief and it drafts a structured Editor.js document (SOW / PRD / spec / arc42) grounded in your connected repository — powered by Groq with Qwen3-32B.
+1. **Configure** — drop in sales-call notes or a brief, or attach a repo. The blueprint engine drafts a structured SOW / PRD / spec: scope, deliverables, assumptions, open questions.
+2. **Quote** — the SOW *is* the quote, with a price line.
+3. **Contract** — an approved SOW converts to a signed contract record.
+4. **Deliver** — the contract spawns trackable work orders for the build team. Change requests stay scoped (no creep).
 
 ## Tech Stack
 
@@ -20,16 +25,16 @@ The hero feature is the **Blueprint Studio**: hand it a sales conversation, inta
 | --- | --- |
 | Framework | Next.js 16 (App Router, React 19, TypeScript) |
 | UI | shadcn/ui (preset `b0`, monochrome), Tailwind CSS v4, Radix UI, Lucide icons |
-| Editor | Editor.js (blueprint documents) |
+| Editor | Editor.js (blueprint / SOW documents) |
 | Charts | Recharts |
 | Auth | Clerk (organizations + role-based access) |
 | Database | Postgres (Supabase) via Drizzle ORM |
-| AI | Groq (Qwen3-32B) for blueprint generation + chat |
+| AI | Groq (Qwen3-32B) for blueprint + quote generation and chat |
 | Integrations | Pipedream Connect (GitHub), Novu (in-app notifications) |
 
 ## Status
 
-The blueprint engine and the sales/opps data model are built. The dashboard pages are mid-migration from an earlier SDLC concept to the agency domain, and the database is not yet wired (`DATABASE_URL` is empty), so most pages currently render representative mock data. The first end-to-end workflow being connected is **opportunity → blueprint → delivery**.
+The blueprint engine (Configure + Quote) and the CPQ data model are built. The database is not yet wired (`DATABASE_URL` is empty), so most pages render representative mock data. The next milestone is the live loop: **opportunity → blueprint (quote) → contract → work orders**.
 
 ## Getting Started
 
@@ -80,39 +85,41 @@ Open [http://localhost:3000](http://localhost:3000). Unauthenticated users are r
 
 ## Data Model
 
-The Drizzle schema (`src/db/schema.ts`) models agency operations, scoped per Clerk organization (`organization_id` on every table):
+The Drizzle schema (`src/db/schema.ts`) models the services-CPQ lifecycle, scoped per Clerk organization (`organization_id` on every table):
 
 - **organizations / users** — synced from Clerk; roles: `founder`, `manager`, `closer`, `setter`, `revops`
-- **opportunities** + `opportunity_notes` + `opportunity_activities` — the sales pipeline with priority scoring
+- **opportunities** + `opportunity_notes` + `opportunity_activities` — the deal (CPQ input)
+- **blueprints** — the Configure + Quote output: AI-generated SOWs / PRDs / specs, with `status` (draft → approved) and `deliverableKind` (sow / prd / spec)
+- **work_orders** — delivery tasks spawned from an approved contract, linked back to the opportunity and blueprint
+- **call_reviews** — sales-call coaching scores (discovery, tonality, qualification, objection, closing)
 - **follow_up_tasks** — the follow-up cadence engine
-- **call_reviews** — call coaching scores (discovery, tonality, qualification, objection, closing)
-- **compliance_violations** — CRM hygiene / delivery gates
+- **compliance_violations** — delivery gates
 
-> Note: a `work_orders` table to link blueprints → trackable delivery tasks is the next planned addition.
+> Pending: the **contract** record that an approved blueprint converts into, completing the Configure → Quote → Contract → Deliver spine.
 
 ## Dashboard
 
 All app pages live under `/dashboard` and share the `DashboardShell` (sidebar, breadcrumbs, org switcher, Novu inbox).
 
-- `/dashboard/blueprints` — **Blueprint Studio** (the live AI feature): create (`/new`), view/edit (`/[id]`)
-- Other dashboard pages are being repurposed from the earlier SDLC layout to agency workflows (pipeline, delivery, coaching, metrics)
+- `/dashboard/blueprints` — **Blueprint Studio** (the Configure/Quote engine): create (`/new`), view/edit (`/[id]`)
+- Other dashboard pages cover the pipeline, delivery, coaching, and metrics around the CPQ loop.
 
 ## Project Structure
 
 ```
 src/
   app/
-    dashboard/            # Product pages (see Dashboard)
+    dashboard/            # Product pages (pipeline, blueprints, delivery, coaching, metrics)
     sign-in/ sign-up/     # Clerk auth screens
     api/                  # Route handlers (blueprints, pipedream)
     layout.tsx            # Root layout (ClerkProvider, fonts, TooltipProvider)
   components/
-    blueprints/           # Editor.js blueprint editor + document renderer + studio chat
+    blueprints/           # Editor.js blueprint/SOW editor + document renderer + studio chat
     ui/                   # shadcn/ui primitives
     overview/             # Overview page sections
     dashboard-shell.tsx   # Sidebar + header + breadcrumbs wrapper
   lib/
-    blueprints/           # Blueprint engine (prompts, intent, LLM, templates) + tests
+    blueprints/           # Configure/Quote engine (prompts, intent, LLM, templates) + tests
     pipedream/            # Pipedream Connect (GitHub) server + client
     ai/                   # AI helpers
   db/                     # Drizzle schema + client

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Agency OS",
-  description: "The operating system for running an AI agency — pipeline, scoping, and delivery in one place.",
+  title: "Marbles",
+  description: "AI-native CPQ for service-based businesses — turn client conversations into scoped, signable SOWs and contracts.",
 };
 
 export default function RootLayout({
