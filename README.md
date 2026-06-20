@@ -3,38 +3,58 @@
 **From conversation to contract.**
 *AI-native CPQ for service-based businesses.*
 
-Marbles turns a messy client conversation into a scoped, priced statement of work in minutes — then converts the approved SOW into a contract and tracks delivery through to close. Built for services businesses that sell custom work, not SKUs: agencies, consultancies, dev shops, marketing firms, and professional services teams.
+Marbles turns a client conversation into a scoped, priced SOW in minutes, then converts the approved SOW into a contract and tracks delivery to close.
 
-> The hard part of services CPQ is "Configure" — figuring out what work the client actually needs. Product CPQ tools can't do it (no catalog to pick from). Marbles does it with AI, from the call, the brief, or the connected repo.
+For services businesses that sell **custom work, not SKUs**: agencies, consultancies, dev shops, marketing firms, and professional services teams.
 
-## How it works (the CPQ loop)
+## Why Marbles
+
+Services firms sell work with no catalog. Every deal is scoped from scratch, by hand, by senior people. That is a 4–8 hour proposal tax on every deal, and nothing on the market removes it.
+
+- **Product CPQ tools can't help.** Salesforce CPQ and DealHub configure products from a price list. There's nothing to configure when the deliverable is "an automation for our ops team."
+- **Proposal tools only format.** PandaDoc, Qwilr, and Proposify template what you already wrote. They don't write the scope. You still start from a blank doc.
+- **Marbles writes the scope.** It reads the call, the brief, or the repo and drafts the SOW.
+
+## How it works
 
 ```
-client brief  →  Configure          →  Quote       →  Contract   →  Deliver
-(opportunity)     (AI blueprint)        (SOW + price)  (signed)      (work orders)
+client brief  →  Configure        →  Quote       →  Contract   →  Deliver
+(opportunity)     (AI blueprint)     (SOW + price)  (signed)      (work orders)
 ```
 
-1. **Configure** — drop in sales-call notes or a brief, or attach a repo. The blueprint engine drafts a structured SOW / PRD / spec: scope, deliverables, assumptions, open questions.
-2. **Quote** — the SOW *is* the quote, with a price line.
-3. **Contract** — an approved SOW converts to a signed contract record.
-4. **Deliver** — the contract spawns trackable work orders for the build team. Change requests stay scoped (no creep).
+1. **Configure.** Drop in call notes or a brief, or attach a repo. The blueprint engine drafts a structured SOW, PRD, or spec: scope, deliverables, assumptions, open questions.
+2. **Quote.** The SOW is the quote, with a price line.
+3. **Contract.** An approved SOW becomes a signed contract record.
+4. **Deliver.** The contract spawns trackable work orders. Change requests stay scoped.
+
+## Features (beyond the loop)
+
+- **Template library:** SOW, proposal, discovery brief, PRD, technical spec, arc42 architecture, change request.
+- **Repo grounding:** attach a GitHub repo so scope reflects real code, not guesses.
+- **Sales coaching:** call-review scores across discovery, tonality, qualification, objection, closing.
+- **Multi-tenant:** one Clerk org per firm, role-based access, data scoped per org.
+- **Export:** download any response as Markdown.
 
 ## Tech Stack
 
 | Layer | Choice |
 | --- | --- |
 | Framework | Next.js 16 (App Router, React 19, TypeScript) |
-| UI | shadcn/ui (preset `b0`, monochrome), Tailwind CSS v4, Radix UI, Lucide icons |
-| Editor | Editor.js (blueprint / SOW documents) |
+| UI | shadcn/ui (preset `b0`, monochrome), Tailwind CSS v4, Radix UI, Lucide |
+| Editor | Editor.js (SOW and blueprint documents) |
 | Charts | Recharts |
-| Auth | Clerk (organizations + role-based access) |
+| Auth | Clerk (organizations + RBAC) |
 | Database | Postgres (Supabase) via Drizzle ORM |
-| AI | Groq (Qwen3-32B) for blueprint + quote generation and chat |
+| AI | Groq (Qwen3-32B) for blueprint, quote, and chat |
 | Integrations | Pipedream Connect (GitHub), Novu (in-app notifications) |
 
-## Status
+## Status & Roadmap
 
-The blueprint engine (Configure + Quote) and the CPQ data model are built. The database is not yet wired (`DATABASE_URL` is empty), so most pages render representative mock data. The next milestone is the live loop: **opportunity → blueprint (quote) → contract → work orders**.
+**Built:** AI blueprint engine (Configure + Quote), CPQ data model, template library, blueprint chat, call-coaching schema.
+
+**Next:** wire the live database, complete quote-to-contract, run the loop on a real engagement, then add AI pricing (the "Price" in CPQ) from rate cards and historical margins.
+
+> The blueprint engine generates real SOWs, PRDs, and specs from attachments and chat today. The database is not wired yet, so most dashboard pages render representative mock data.
 
 ## Getting Started
 
@@ -46,8 +66,6 @@ npm install
 
 ### 2. Configure environment
 
-Copy `.env.example` to `.env.local` and fill in your keys:
-
 ```bash
 cp .env.example .env.local
 ```
@@ -58,7 +76,7 @@ cp .env.example .env.local
 | `DATABASE_URL` | Supabase → Project Settings → Database |
 | `NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER` | Novu Dashboard → Settings |
 | `GROQ_API_KEY` | Groq Console → API Keys |
-| Clerk path + redirect vars | Match the Clerk Account Portal fields (see `.env.example`) |
+| Clerk path and redirect vars | Match the Clerk Account Portal fields (see `.env.example`) |
 
 ### 3. Run
 
@@ -66,7 +84,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Unauthenticated users are redirected to `/sign-in`; after auth they land on `/dashboard`.
+Open [http://localhost:3000](http://localhost:3000). Unauthenticated users redirect to `/sign-in`; after auth they land on `/dashboard`.
 
 ## Scripts
 
@@ -85,24 +103,17 @@ Open [http://localhost:3000](http://localhost:3000). Unauthenticated users are r
 
 ## Data Model
 
-The Drizzle schema (`src/db/schema.ts`) models the services-CPQ lifecycle, scoped per Clerk organization (`organization_id` on every table):
+The Drizzle schema (`src/db/schema.ts`) models the services-CPQ lifecycle, scoped per organization (`organization_id` on every table):
 
-- **organizations / users** — synced from Clerk; roles: `founder`, `manager`, `closer`, `setter`, `revops`
-- **opportunities** + `opportunity_notes` + `opportunity_activities` — the deal (CPQ input)
-- **blueprints** — the Configure + Quote output: AI-generated SOWs / PRDs / specs, with `status` (draft → approved) and `deliverableKind` (sow / prd / spec)
-- **work_orders** — delivery tasks spawned from an approved contract, linked back to the opportunity and blueprint
-- **call_reviews** — sales-call coaching scores (discovery, tonality, qualification, objection, closing)
-- **follow_up_tasks** — the follow-up cadence engine
-- **compliance_violations** — delivery gates
-
-> Pending: the **contract** record that an approved blueprint converts into, completing the Configure → Quote → Contract → Deliver spine.
-
-## Dashboard
-
-All app pages live under `/dashboard` and share the `DashboardShell` (sidebar, breadcrumbs, org switcher, Novu inbox).
-
-- `/dashboard/blueprints` — **Blueprint Studio** (the Configure/Quote engine): create (`/new`), view/edit (`/[id]`)
-- Other dashboard pages cover the pipeline, delivery, coaching, and metrics around the CPQ loop.
+| Table | Role in the CPQ loop |
+| --- | --- |
+| `organizations` / `users` | synced from Clerk; roles: founder, manager, closer, setter, revops |
+| `opportunities` (+ notes, activities) | the deal, CPQ input |
+| `blueprints` | Configure + Quote output: AI SOWs, PRDs, specs (`status`: draft → approved) |
+| `work_orders` | delivery tasks spawned from an approved contract |
+| `call_reviews` | sales-call coaching scores |
+| `follow_up_tasks` | follow-up cadence engine |
+| `compliance_violations` | delivery gates |
 
 ## Project Structure
 
@@ -112,19 +123,15 @@ src/
     dashboard/            # Product pages (pipeline, blueprints, delivery, coaching, metrics)
     sign-in/ sign-up/     # Clerk auth screens
     api/                  # Route handlers (blueprints, pipedream)
-    layout.tsx            # Root layout (ClerkProvider, fonts, TooltipProvider)
+    layout.tsx            # Root layout (ClerkProvider, fonts)
   components/
-    blueprints/           # Editor.js blueprint/SOW editor + document renderer + studio chat
+    blueprints/           # Editor.js SOW editor, renderer, studio chat
     ui/                   # shadcn/ui primitives
     overview/             # Overview page sections
-    dashboard-shell.tsx   # Sidebar + header + breadcrumbs wrapper
+    dashboard-shell.tsx   # Sidebar, header, breadcrumbs wrapper
   lib/
     blueprints/           # Configure/Quote engine (prompts, intent, LLM, templates) + tests
-    pipedream/            # Pipedream Connect (GitHub) server + client
+    pipedream/            # Pipedream Connect (GitHub)
     ai/                   # AI helpers
   db/                     # Drizzle schema + client
 ```
-
-## Multi-Tenancy
-
-Tenancy is handled through **Clerk organizations**; the active org drives the sidebar branding and scopes data. The Drizzle schema carries an `organization_id` on every tenant-scoped table.
