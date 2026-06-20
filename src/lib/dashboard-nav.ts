@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import { BoxesIcon, FactoryIcon } from "lucide-react"
+import { BoxesIcon, FactoryIcon, ScrollTextIcon } from "lucide-react"
 
 export type DashboardNavLink = {
   title: string
@@ -29,5 +29,11 @@ export const DASHBOARD_NAV_SECTIONS: DashboardNavSection[] = [
     url: "#",
     icon: BoxesIcon,
     items: [{ title: "Integrations", url: "/dashboard/integrations" }],
+  },
+  {
+    title: "Contracts",
+    url: "#",
+    icon: ScrollTextIcon,
+    items: [{ title: "Contracts", url: "/dashboard/contracts" }],
   },
 ]

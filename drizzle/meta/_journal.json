@@ -15,6 +15,13 @@
       "when": 1781848569625,
       "tag": "0001_curvy_moira_mactaggert",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781969354776,
+      "tag": "0002_lucky_kitty_pryde",
+      "breakpoints": true
     }
   ]
 }

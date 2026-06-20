@@ -320,3 +320,123 @@ export const workOrders = pgTable("work_orders", {
     .notNull()
     .defaultNow(),
 });
+
+// ---------------------------------------------------------------------------
+// Module 8: E-signature (signable contracts — the CPQ "Contract" step)
+// ---------------------------------------------------------------------------
+
+export const contractStatusEnum = pgEnum("contract_status", [
+  "draft",
+  "pending",
+  "completed",
+  "rejected",
+  "cancelled",
+]);
+
+export const contractSigningStatusEnum = pgEnum("contract_signing_status", [
+  "not_signed",
+  "signed",
+  "rejected",
+]);
+
+export const contractFieldTypeEnum = pgEnum("contract_field_type", [
+  "signature",
+  "initials",
+  "name",
+  "date",
+  "text",
+  "email",
+]);
+
+export const contracts = pgTable("contracts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  opportunityId: uuid("opportunity_id").references(() => opportunities.id, {
+    onDelete: "set null",
+  }),
+  blueprintId: uuid("blueprint_id").references(() => blueprints.id, {
+    onDelete: "set null",
+  }),
+  title: text("title").notNull(),
+  status: contractStatusEnum("status").notNull().default("draft"),
+  pdfData: text("pdf_data"),
+  sealedPdfData: text("sealed_pdf_data"),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const contractRecipients = pgTable("contract_recipients", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  contractId: uuid("contract_id")
+    .notNull()
+    .references(() => contracts.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  name: text("name"),
+  token: text("token").notNull().unique(),
+  signingStatus: contractSigningStatusEnum("signing_status")
+    .notNull()
+    .default("not_signed"),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  signedAt: timestamp("signed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const contractFields = pgTable("contract_fields", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  contractId: uuid("contract_id")
+    .notNull()
+    .references(() => contracts.id, { onDelete: "cascade" }),
+  recipientId: uuid("recipient_id").references(() => contractRecipients.id, {
+    onDelete: "set null",
+  }),
+  type: contractFieldTypeEnum("type").notNull(),
+  page: integer("page").notNull().default(1),
+  positionX: numeric("position_x").notNull().default("0"),
+  positionY: numeric("position_y").notNull().default("0"),
+  width: numeric("width").notNull().default("20"),
+  height: numeric("height").notNull().default("6"),
+  customText: text("custom_text"),
+  inserted: boolean("inserted").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const contractSignatures = pgTable("contract_signatures", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  fieldId: uuid("field_id")
+    .notNull()
+    .unique()
+    .references(() => contractFields.id, { onDelete: "cascade" }),
+  recipientId: uuid("recipient_id").references(() => contractRecipients.id, {
+    onDelete: "cascade",
+  }),
+  signatureImageBase64: text("signature_image_base64"),
+  typedSignature: text("typed_signature"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const contractAuditLogs = pgTable("contract_audit_logs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  contractId: uuid("contract_id")
+    .notNull()
+    .references(() => contracts.id, { onDelete: "cascade" }),
+  type: text("type").notNull(),
+  data: jsonb("data"),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
